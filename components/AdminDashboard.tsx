@@ -182,48 +182,69 @@ const AdminDashboard = ({ siteData, onSave, onCancel, onLogout }) => {
       }
   };
   
-  const generateAllMissingCaptions = async () => {
-    if (!process.env.API_KEY) {
-        alert("Gemini API Key is not set.");
-        return;
-    }
-    setCaptionState(prev => ({ ...prev, loading: 'all' }));
-    
-    const imagesToCaption = localData.gallery.map((img, index) => ({...img, index})).filter(img => !img.caption);
+    const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-    const promises = imagesToCaption.map(image => {
+    const generateAllMissingCaptions = async () => {
+        if (!process.env.API_KEY) {
+            alert("Gemini API Key is not set.");
+            return;
+        }
+        setCaptionState(prev => ({ ...prev, loading: 'all' }));
+
+        const imagesToCaption = localData.gallery
+            .map((img, index) => ({ ...img, index }))
+            .filter(img => !img.caption);
+        
+        if (imagesToCaption.length === 0) {
+            setCaptionState(prev => ({ ...prev, loading: null }));
+            return;
+        }
+
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const base64Data = image.src.split(',')[1];
-        const mimeType = image.src.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)[1];
 
-        const imagePart = { inlineData: { data: base64Data, mimeType } };
-        const textPart = { text: "Describe this image for a restaurant's website gallery. Be concise and appealing. Focus on food, atmosphere, or events." };
+        for (const image of imagesToCaption) {
+            try {
+                const base64Data = image.src.split(',')[1];
+                const mimeTypeMatch = image.src.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+                if (!mimeTypeMatch) {
+                    console.error(`Could not determine mime type for image ${image.index}`);
+                    continue; // Skip this image
+                }
+                const mimeType = mimeTypeMatch[1];
 
-        return ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [imagePart, textPart] }
-        }).then(response => ({
-            index: image.index,
-            caption: response.text.trim()
-        })).catch(err => {
-            console.error(`Failed to generate caption for image ${image.index}`, err);
-            return null;
-        });
-    });
+                const imagePart = { inlineData: { data: base64Data, mimeType } };
+                const textPart = { text: "Describe this image for a restaurant's website gallery. Be concise and appealing. Focus on food, atmosphere, or events." };
 
-    const results = await Promise.all(promises);
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: { parts: [imagePart, textPart] }
+                });
+                
+                const caption = response.text.trim();
 
-    setLocalData(prev => {
-        const newGallery = [...prev.gallery];
-        results.forEach(result => {
-            if (result) {
-                newGallery[result.index].caption = result.caption;
+                setLocalData(prev => {
+                    const newGallery = [...prev.gallery];
+                    if (newGallery[image.index]) {
+                        newGallery[image.index].caption = caption;
+                    }
+                    return { ...prev, gallery: newGallery };
+                });
+
+                await delay(1200); // Wait 1.2 seconds to avoid hitting rate limits
+
+            } catch (err) {
+                console.error(`Failed to generate caption for image ${image.index}`, err);
+                const errorString = err.toString();
+                if (errorString.includes('429') || errorString.includes('RESOURCE_EXHAUSTED')) {
+                    alert("Rate limit reached. The captioning process has been stopped. Please wait a minute before trying again.");
+                    break; 
+                }
             }
-        });
-        return { ...prev, gallery: newGallery };
-    });
-    setCaptionState(prev => ({...prev, loading: null}));
-  };
+        }
+
+        setCaptionState(prev => ({ ...prev, loading: null }));
+    };
+
 
   const selectCaption = (caption) => {
       setLocalData(prev => {
@@ -369,7 +390,16 @@ const AdminDashboard = ({ siteData, onSave, onCancel, onLogout }) => {
                 {localData.events.map((event, index) => (
                   <div key={index} className="p-3 border rounded-md space-y-2 relative">
                     <div className="flex items-start gap-3">
-                        <img src={event.image} className="w-20 h-20 object-cover rounded" />
+                        <div className="flex-shrink-0">
+                            <img src={event.image} className="w-20 h-20 object-cover rounded" />
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleGenericImageUpload(e, 'events', index)}
+                                className="mt-2 w-20 block text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                                aria-label={`Upload image for ${event.title}`}
+                            />
+                        </div>
                         <div className="flex-grow">
                              <label className="text-xs text-gray-500">Title</label>
                             <input type="text" value={event.title} onChange={(e) => handleInputChange(e, 'events', null, index, 'title')} className="block w-full border border-gray-300 rounded-md py-1 px-2 text-sm" />
