@@ -37,15 +37,19 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
     }
   }, []);
 
-  const handleInputChange = (e, section, field) => {
+  const handleInputChange = (e, section, field = null) => {
     const { value } = e.target;
-    onUpdate(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value
-      }
-    }));
+    if (field) {
+        onUpdate(prev => ({
+            ...prev,
+            [section]: {
+                ...prev[section],
+                [field]: value
+            }
+        }));
+    } else {
+        onUpdate(prev => ({ ...prev, [section]: value }));
+    }
   };
   
   const handleSpecialsChange = (e) => {
@@ -78,6 +82,30 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
           const newMenu = JSON.parse(JSON.stringify(prev.menu));
           newMenu[type][catIndex].items.splice(itemIndex, 1);
           return { ...prev, menu: newMenu };
+      });
+  };
+
+  const handleRuleChange = (e, index) => {
+    const { value } = e.target;
+    onUpdate(prev => {
+        const newRules = [...prev.rules];
+        newRules[index] = value;
+        return { ...prev, rules: newRules };
+    });
+  };
+
+  const addRule = () => {
+      onUpdate(prev => ({
+          ...prev,
+          rules: [...prev.rules, 'New rule.']
+      }));
+  };
+
+  const removeRule = (index) => {
+      onUpdate(prev => {
+          const newRules = [...prev.rules];
+          newRules.splice(index, 1);
+          return { ...prev, rules: newRules };
       });
   };
 
@@ -220,7 +248,11 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Hero Subtitle</label>
-                  <textarea rows={3} value={siteData.hero.subtitle} onChange={(e) => handleInputChange(e, 'hero', 'subtitle')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                  <textarea rows={2} value={siteData.hero.subtitle} onChange={(e) => handleInputChange(e, 'hero', 'subtitle')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                 <div>
+                  <label className="block text-sm font-medium text-gray-700">About Section</label>
+                  <textarea rows={4} value={siteData.about} onChange={(e) => handleInputChange(e, 'about')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
                 </div>
                  <div>
                   <label className="block text-sm font-medium text-gray-700">Contact Address</label>
@@ -229,6 +261,16 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
                  <div>
                   <label className="block text-sm font-medium text-gray-700">Contact Phone</label>
                   <input type="text" value={siteData.contact.phone} onChange={(e) => handleInputChange(e, 'contact', 'phone')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
+                </div>
+                <div className="pt-2">
+                    <label className="block text-sm font-medium text-gray-700">House Rules</label>
+                    {siteData.rules.map((rule, index) => (
+                        <div key={index} className="flex items-center gap-2 mt-1">
+                            <input type="text" value={rule} onChange={(e) => handleRuleChange(e, index)} className="flex-grow border border-gray-300 rounded-md py-1 px-2 text-sm" />
+                            <button onClick={() => removeRule(index)} className="text-gray-500 hover:text-red-500"><IconTrash /></button>
+                        </div>
+                    ))}
+                    <button onClick={addRule} className="mt-2 text-sm text-primary hover:underline">+ Add Rule</button>
                 </div>
               </div>
             )}

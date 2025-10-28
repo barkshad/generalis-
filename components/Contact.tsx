@@ -1,12 +1,12 @@
 import React from 'react';
 
-const Contact: React.FC<{ content: { address: string; phone: string } }> = ({ content }) => {
+const Contact: React.FC<{ content: { address: string; phone: string }, rules: string[] }> = ({ content, rules }) => {
   const telLink = `tel:${content.phone.replace(/\s/g, '')}`;
   const whatsappLink = `https://wa.me/${content.phone.replace(/\s/g, '').replace('+', '')}?text=Hi%20Generali's%20Bar%20-%20I'd%20like%20to%20book%20a%20table`;
   
   return (
-    <section id="contact" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
-      <div className="grid md:grid-cols-2 gap-8 items-start">
+    <section id="contact" className="bg-white max-w-6xl mx-auto px-6 py-20 scroll-mt-20">
+      <div className="grid md:grid-cols-2 gap-12 items-start">
         <div>
           <h2 className="font-heading text-3xl md:text-4xl">Contact & Location</h2>
           <p className="mt-3 text-gray-700">{content.address}</p>
@@ -18,6 +18,14 @@ const Contact: React.FC<{ content: { address: string; phone: string } }> = ({ co
           <div className="mt-6">
             <h4 className="font-heading text-lg">Hours</h4>
             <p className="text-gray-700 text-sm mt-1">Daily: 10:00am — 11:00pm<br/>Happy Hour (Weekdays): 3:00pm — 6:00pm</p>
+          </div>
+          <div className="mt-8 pt-6 border-t">
+            <h4 className="font-heading text-lg">Dress Code & House Rules</h4>
+            <ul className="mt-3 text-gray-700 text-sm space-y-2 list-disc list-inside">
+              {rules.map((rule, index) => (
+                <li key={index}>{rule}</li>
+              ))}
+            </ul>
           </div>
         </div>
         <div>

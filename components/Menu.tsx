@@ -41,7 +41,7 @@ const FullMenuCard: React.FC<{ category: MenuCategory }> = ({ category }) => (
 
 const Menu: React.FC<{ content: { overview: MenuCategory[]; fullMenu: MenuCategory[] } }> = ({ content }) => {
   return (
-    <section id="menu" className="max-w-6xl mx-auto px-6 py-20 scroll-mt-20">
+    <section id="menu" className="bg-gray-50 max-w-6xl mx-auto px-6 py-20 scroll-mt-20">
       <div className="grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h2 className="font-heading text-3xl md:text-4xl">Menu Overview</h2>

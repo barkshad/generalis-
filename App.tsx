@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header';
 import Hero from './components/Hero';
+import About from './components/About';
 import Menu from './components/Menu';
 import Events from './components/Events';
 import Gallery from './components/Gallery';
-import Rules from './components/Rules';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import Lightbox from './components/Lightbox';
@@ -15,8 +15,9 @@ import Specials from './components/Specials';
 const initialData = {
   hero: {
     title: 'Where Kilifi Comes Alive — <span class="text-primary">Eat. Sip. Vibe.</span>',
-    subtitle: "Discover coastal flavours, vibrant nights & local energy at Generali's Bar & Kitchen, Kilifi. Fresh seafood, wood-fired BBQ and crafted cocktails — made for good company."
+    subtitle: "Fresh seafood, wood-fired BBQ and crafted cocktails."
   },
+  about: "Discover coastal flavours, vibrant nights & local energy at Generali's Bar & Kitchen, Kilifi. We believe in good food made for good company, served in a space that feels like home. From our kitchen to your table, it's all about the vibe.",
   specials: `🍴 **Say Goodbye to Monday Blues!**
 **Fresh, Flavorful & Fast Deliveries within Kilifi and its Environs 🌴🚗**
 
@@ -55,49 +56,145 @@ Fast delivery, hot meals, happy vibes 🎉`,
     { src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=60', caption: 'Our chefs preparing a masterpiece in the kitchen.' },
     { src: 'https://images.unsplash.com/photo-1541542684-4b3b36f9a9b9?auto=format&fit=crop&w=800&q=60', caption: 'Cozy and inviting atmosphere for a perfect night out.' }
   ],
+  rules: [
+      'Smart casual recommended. No swimwear or flip-flops after 6pm.',
+      'We reserve the right of admission.',
+      'Please respect staff and other guests — loud or abusive behaviour will not be tolerated.'
+  ],
   contact: {
     address: 'Kwa Mwango, Kilifi Town — opposite the new Fire Station.',
     phone: '+254 723 836 288',
   }
 };
 
+// --- IndexedDB Helpers for robust storage ---
+const DB_NAME = 'generalis-db';
+const STORE_NAME = 'site-data';
+const GALLERY_KEY = 'gallery';
+const DB_VERSION = 1;
+
+const openDB = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+const dbGet = async (key: string): Promise<unknown> => {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readonly');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.get(key);
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+};
+
+const dbSet = async (key: string, value: unknown): Promise<void> => {
+  const db = await openDB();
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction(STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(STORE_NAME);
+    const request = store.put(value, key);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+};
+// --- End IndexedDB Helpers ---
+
+
 const App: React.FC = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
-  const [siteData, setSiteData] = useState(() => {
-      try {
-        const savedData = window.localStorage.getItem('generalis-site-data');
-        let data = savedData ? JSON.parse(savedData) : initialData;
-
-        // Migration for gallery format from string[] to {src, caption}[]
-        if (data.gallery && data.gallery.length > 0 && typeof data.gallery[0] === 'string') {
-            data.gallery = data.gallery.map((src: string) => ({ src, caption: '' }));
-        }
-        
-        return data;
-      } catch (error) {
-        console.error("Could not parse saved site data", error);
-        return initialData;
-      }
-  });
+  const [siteData, setSiteData] = useState(initialData);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [originalSiteData, setOriginalSiteData] = useState<typeof initialData | null>(null);
-
   const [isAdmin, setIsAdmin] = useState(!!window.sessionStorage.getItem('isAdmin'));
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
 
   useEffect(() => {
-    try {
-        window.localStorage.setItem('generalis-site-data', JSON.stringify(siteData));
-    } catch (error) {
-        console.error("Could not save site data", error);
-    }
-  }, [siteData]);
+    const loadData = async () => {
+      try {
+        const savedTextDataString = window.localStorage.getItem('generalis-site-data-text');
+        const gallery = (await dbGet(GALLERY_KEY) as { src: string, caption: string }[]) || [];
+
+        let data;
+
+        if (savedTextDataString || gallery.length > 0) {
+           const savedTextData = savedTextDataString ? JSON.parse(savedTextDataString) : {};
+           const textData = {
+               ...(({ gallery, ...rest }) => rest)(initialData), // default text data
+               ...savedTextData // override with saved data
+           };
+           data = { ...textData, gallery: gallery.length > 0 ? gallery : initialData.gallery };
+        } else {
+          // One-time migration from old single localStorage key
+          const oldDataString = window.localStorage.getItem('generalis-site-data');
+          if (oldDataString) {
+            console.log("Migrating data from old format...");
+            const oldData = JSON.parse(oldDataString);
+            const { gallery: oldGallery, ...oldTextData } = oldData;
+            
+            window.localStorage.setItem('generalis-site-data-text', JSON.stringify(oldTextData));
+            await dbSet(GALLERY_KEY, oldGallery);
+            window.localStorage.removeItem('generalis-site-data'); // Clean up old key
+            
+            data = oldData;
+          } else {
+            data = initialData;
+          }
+        }
+
+        // Migration for gallery format from string[] to {src, caption}[]
+        if (data.gallery && data.gallery.length > 0 && typeof data.gallery[0] === 'string') {
+            data.gallery = data.gallery.map((src: string) => ({ src, caption: '' }));
+        }
+
+        setSiteData(data);
+      } catch (error) {
+        console.error("Could not load or parse saved site data", error);
+        setSiteData(initialData);
+      } finally {
+        setIsDataLoaded(true);
+      }
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    if (!isDataLoaded) return; // Don't save before initial data is loaded
+
+    const saveData = async () => {
+      try {
+        const { gallery, ...textData } = siteData;
+        window.localStorage.setItem('generalis-site-data-text', JSON.stringify(textData));
+        await dbSet(GALLERY_KEY, gallery);
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+             console.error("Could not save site data: Quota exceeded. The gallery is too large to be stored.", error);
+             alert("Error: Could not save changes. The gallery has too many high-resolution images. Please remove some images and try again.");
+        } else {
+             console.error("Could not save site data", error);
+        }
+      }
+    };
+
+    saveData();
+  }, [siteData, isDataLoaded]);
   
   const openLightbox = useCallback((src: string) => setLightboxImage(src), []);
   const closeLightbox = useCallback(() => setLightboxImage(null), []);
 
   const openAdminDashboard = () => {
-    setOriginalSiteData(siteData); // Create a snapshot of data before editing
+    setOriginalSiteData(JSON.parse(JSON.stringify(siteData))); // Deep copy for snapshot
     setShowAdminDashboard(true);
   };
 
@@ -136,12 +233,12 @@ const App: React.FC = () => {
       <Header />
       <main>
         <Hero content={siteData.hero} />
+        <About content={siteData.about} />
         <Specials content={siteData.specials} />
         <Menu content={siteData.menu} />
         <Events />
         <Gallery images={siteData.gallery} onImageClick={openLightbox} />
-        <Rules />
-        <Contact content={siteData.contact} />
+        <Contact content={siteData.contact} rules={siteData.rules} />
       </main>
       <Footer onAdminClick={() => isAdmin ? openAdminDashboard() : setShowAdminLogin(true)} />
       {lightboxImage && <Lightbox src={lightboxImage} onClose={closeLightbox} />}

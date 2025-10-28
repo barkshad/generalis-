@@ -6,7 +6,7 @@ const Specials: React.FC<{ content: string }> = ({ content }) => {
   }
 
   return (
-    <section id="specials" className="bg-primary/10 py-16 scroll-mt-20">
+    <section id="specials" className="bg-white py-20 scroll-mt-20">
       <div className="max-w-3xl mx-auto px-6">
         <h2 className="font-heading text-3xl md:text-4xl text-center">Today's Specials</h2>
         <p className="mt-2 text-gray-700 text-center">Freshly prepared just for you. Available for dine-in or delivery!</p>

@@ -3,7 +3,7 @@ import React from 'react';
 
 const Events: React.FC = () => {
   return (
-    <section id="events" className="bg-gray-50 py-16 scroll-mt-20">
+    <section id="events" className="bg-white py-20 scroll-mt-20">
       <div className="max-w-6xl mx-auto px-6">
         <h2 className="font-heading text-3xl md:text-4xl">Events & Happy Hour</h2>
         <p className="mt-3 text-gray-700">Good food. Great music. Even better memories.</p>
