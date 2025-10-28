@@ -8,6 +8,7 @@ const IconTrash: React.FC = () => (
 const AdminDashboard = ({ siteData, onUpdate, onClose, onLogout }) => {
   const [activeTab, setActiveTab] = useState('general');
   const [formData, setFormData] = useState(siteData);
+  const [newImageUrl, setNewImageUrl] = useState('');
 
   const handleGeneralChange = (e) => {
     const { name, value } = e.target;
@@ -57,7 +58,6 @@ const AdminDashboard = ({ siteData, onUpdate, onClose, onLogout }) => {
   );
 
   const renderMenuTab = () => {
-    // This is a simplified menu editor. A real-world one would be more complex.
     const handleMenuChange = (e, section, catIndex, itemIndex) => {
         const {name, value} = e.target;
         const newMenuData = JSON.parse(JSON.stringify(formData.menu));
@@ -79,38 +79,53 @@ const AdminDashboard = ({ siteData, onUpdate, onClose, onLogout }) => {
          const newMenuData = JSON.parse(JSON.stringify(formData.menu));
          newMenuData[section][catIndex].items.splice(itemIndex, 1);
          setFormData(prev => ({...prev, menu: newMenuData}));
-    }
+    };
+
+    const addCategory = (section) => {
+      const newMenuData = JSON.parse(JSON.stringify(formData.menu));
+      newMenuData[section].push({ title: 'New Category', items: [] });
+      setFormData(prev => ({ ...prev, menu: newMenuData }));
+    };
+
+    const deleteCategory = (section, catIndex) => {
+        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
+        newMenuData[section].splice(catIndex, 1);
+        setFormData(prev => ({ ...prev, menu: newMenuData }));
+    };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {Object.keys(formData.menu).map(sectionKey => (
                  <div key={sectionKey}>
-                    <h3 className="text-lg font-heading mb-2 capitalize">{sectionKey.replace('fullMenu', 'Full Menu')}</h3>
+                    <h3 className="text-xl font-heading mb-3 capitalize border-b pb-2">{sectionKey.replace('fullMenu', 'Full Menu')}</h3>
                     {formData.menu[sectionKey].map((category, catIndex) => (
-                        <div key={catIndex} className="p-4 border rounded-md mb-4 bg-gray-50">
-                            <input type="text" name="title" value={category.title} onChange={e => handleMenuChange(e, sectionKey, catIndex, null)} className="font-semibold text-lg border-b-2 border-transparent focus:border-primary outline-none bg-transparent"/>
-                            <div className="mt-2 space-y-2">
+                        <div key={catIndex} className="p-4 border rounded-md mb-4 bg-gray-50/50">
+                            <div className="flex justify-between items-center mb-3">
+                                <input type="text" name="title" value={category.title} onChange={e => handleMenuChange(e, sectionKey, catIndex, null)} className="font-semibold text-lg border-b-2 border-transparent focus:border-primary outline-none bg-transparent flex-grow w-full"/>
+                                <button onClick={() => deleteCategory(sectionKey, catIndex)} title="Delete Category" className="p-2 text-red-500 hover:bg-red-100 rounded-full shrink-0"><IconTrash /></button>
+                            </div>
+                            <div className="space-y-2">
                                 {category.items.map((item, itemIndex) => (
                                     <div key={itemIndex} className="flex items-center gap-2">
-                                        <input type="text" name="name" value={item.name} onChange={e => handleMenuChange(e, sectionKey, catIndex, itemIndex)} className="flex-grow rounded-md border-gray-300 shadow-sm sm:text-sm"/>
-                                        <input type="text" name="price" value={item.price} onChange={e => handleMenuChange(e, sectionKey, catIndex, itemIndex)} className="w-32 rounded-md border-gray-300 shadow-sm sm:text-sm"/>
-                                        <button onClick={() => deleteMenuItem(sectionKey, catIndex, itemIndex)} className="p-2 text-red-600 hover:bg-red-100 rounded-full"><IconTrash /></button>
+                                        <input type="text" name="name" value={item.name} onChange={e => handleMenuChange(e, sectionKey, catIndex, itemIndex)} className="flex-grow rounded-md border-gray-300 shadow-sm sm:text-sm focus:ring-primary focus:border-primary"/>
+                                        <input type="text" name="price" value={item.price} onChange={e => handleMenuChange(e, sectionKey, catIndex, itemIndex)} className="w-32 rounded-md border-gray-300 shadow-sm sm:text-sm focus:ring-primary focus:border-primary"/>
+                                        <button onClick={() => deleteMenuItem(sectionKey, catIndex, itemIndex)} title="Delete Item" className="p-2 text-red-600 hover:bg-red-100 rounded-full shrink-0"><IconTrash /></button>
                                     </div>
                                 ))}
+                                {category.items.length === 0 && <p className="text-xs text-gray-500 text-center py-2">This category is empty. Add an item below.</p>}
                             </div>
-                             <button onClick={() => addMenuItem(sectionKey, catIndex)} className="mt-2 text-sm text-primary font-semibold">+ Add Item</button>
+                             <button onClick={() => addMenuItem(sectionKey, catIndex)} className="mt-3 text-sm text-primary font-semibold hover:underline">+ Add Item</button>
                         </div>
                     ))}
+                    <button onClick={() => addCategory(sectionKey)} className="mt-2 text-sm text-primary font-semibold border border-dashed border-primary/50 rounded-md p-2 w-full hover:bg-primary/10 transition-colors">+ Add Category to {sectionKey.replace('fullMenu', 'Full Menu')}</button>
                  </div>
             ))}
-            <button onClick={handleSave} className="px-4 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90">Save Menu Changes</button>
+            <button onClick={handleSave} className="mt-4 px-6 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90">Save Menu Changes</button>
         </div>
-    )
+    );
   };
 
   const renderGalleryTab = () => {
-    const [newImageUrl, setNewImageUrl] = useState('');
-
     const addImage = () => {
         if (newImageUrl.trim() === '') return;
         const newGallery = [...formData.gallery, newImageUrl];
