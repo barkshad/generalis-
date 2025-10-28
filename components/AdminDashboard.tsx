@@ -22,6 +22,19 @@ const IconSparkles: React.FC = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
 );
 
+const IconBold: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13 12H4M13 20H4M13 12a4 4 0 100-8H4v8m9 0a4 4 0 110 8H4v-8" /></svg>
+);
+const IconItalic: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 4h6m-6 16h6M12 4L8 20" /></svg>
+);
+const IconList: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+);
+const IconUnderline: React.FC = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 3v9a6 6 0 0012 0V3M4 21h16" /></svg>
+);
+
 
 const AdminDashboard = ({ siteData, onSave, onCancel, onLogout }) => {
   const [activeTab, setActiveTab] = useState('general');
@@ -53,14 +66,6 @@ const AdminDashboard = ({ siteData, onSave, onCancel, onLogout }) => {
     }
   };
   
-  const handleSpecialsChange = (e) => {
-    const { value } = e.target;
-    setLocalData(prev => ({
-        ...prev,
-        specials: value
-    }));
-  }
-
   const handleMenuChange = (e, type, catIndex, itemIndex, field) => {
      const { value } = e.target;
      setLocalData(prev => {
@@ -279,8 +284,22 @@ const AdminDashboard = ({ siteData, onSave, onCancel, onLogout }) => {
             {activeTab === 'specials' && (
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Today's Specials</label>
-                    <textarea rows={15} value={localData.specials} onChange={handleSpecialsChange} className="mt-1 font-mono text-sm block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
-                    <p className="mt-1 text-xs text-gray-500">Use Markdown for formatting, e.g., `**Bold Text**`. Leave blank to hide the section.</p>
+                    <div className="mt-1 border border-gray-300 rounded-md shadow-sm focus-within:ring-1 focus-within:ring-primary focus-within:border-primary">
+                        <div className="flex items-center gap-1 p-2 border-b bg-gray-50 rounded-t-md">
+                            <button type="button" onClick={() => document.execCommand('bold')} className="p-2 rounded hover:bg-gray-200" title="Bold"><IconBold /></button>
+                            <button type="button" onClick={() => document.execCommand('italic')} className="p-2 rounded hover:bg-gray-200" title="Italic"><IconItalic /></button>
+                            <button type="button" onClick={() => document.execCommand('underline')} className="p-2 rounded hover:bg-gray-200" title="Underline"><IconUnderline /></button>
+                            <button type="button" onClick={() => document.execCommand('insertUnorderedList')} className="p-2 rounded hover:bg-gray-200" title="Bullet List"><IconList /></button>
+                        </div>
+                        <div
+                            contentEditable
+                            suppressContentEditableWarning={true}
+                            onInput={(e) => setLocalData(prev => ({ ...prev, specials: e.currentTarget.innerHTML }))}
+                            dangerouslySetInnerHTML={{ __html: localData.specials }}
+                            className="min-h-[250px] p-3 focus:outline-none"
+                        />
+                    </div>
+                    <p className="mt-2 text-xs text-gray-500">Use the toolbar to format your text. Leave blank to hide the section.</p>
                 </div>
             )}
 

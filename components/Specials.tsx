@@ -42,15 +42,11 @@ const Specials: React.FC<{ content: string }> = ({ content }) => {
       <div className="max-w-3xl mx-auto px-6">
         <h2 className="font-heading text-3xl md:text-4xl text-center">Today's Specials</h2>
         <p className="mt-2 text-gray-700 text-center">Freshly prepared just for you. Available for dine-in or delivery!</p>
-        <div className="mt-8 p-8 border-2 border-dashed border-primary/50 rounded-lg bg-white shadow-xl text-charcoal leading-relaxed">
-           {content.split('\n').map((line, index) => (
-             <p 
-                key={index} 
-                className="my-1"
-                dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-charcoal/90">$1</strong>') || '&nbsp;'}}
-             />
-           ))}
-        </div>
+        <div 
+            className="mt-8 p-8 border-2 border-dashed border-primary/50 rounded-lg bg-white shadow-xl text-charcoal leading-relaxed 
+                       [&_ul]:list-disc [&_ul]:pl-5 [&_p]:mb-2 [&_strong]:font-semibold [&_em]:italic"
+            dangerouslySetInnerHTML={{ __html: content }}
+        />
       </div>
     </section>
   );

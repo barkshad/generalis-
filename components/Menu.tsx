@@ -15,8 +15,8 @@ const MenuCategoryCard: React.FC<{ category: MenuCategory }> = ({ category }) =>
     <h3 className="font-heading text-lg">{category.title}</h3>
     <ul className="mt-2 text-sm text-gray-700">
       {category.items.map((item) => (
-        <li key={item.name} className="flex justify-between py-1 border-b border-gray-100 last:border-b-0">
-          <span>{item.name}</span>
+        <li key={item.name} className="group flex justify-between py-1 border-b border-gray-100 last:border-b-0 cursor-default">
+          <span className="group-hover:text-primary group-hover:font-semibold transition-all duration-200 ease-in-out">{item.name}</span>
           <span className="font-medium text-charcoal">{item.price}</span>
         </li>
       ))}
@@ -29,8 +29,8 @@ const FullMenuCard: React.FC<{ category: MenuCategory }> = ({ category }) => (
         <h4 className="font-heading text-lg">{category.title}</h4>
         <div className="mt-2 text-sm text-gray-700 space-y-1">
           {category.items.map(item => (
-            <div key={item.name} className="flex justify-between">
-              <span>{item.name}</span>
+            <div key={item.name} className="group flex justify-between cursor-default">
+              <span className="group-hover:text-primary group-hover:font-semibold transition-all duration-200 ease-in-out">{item.name}</span>
               <span>{item.price}</span>
             </div>
           ))}

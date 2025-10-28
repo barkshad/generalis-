@@ -18,25 +18,24 @@ const initialData = {
     subtitle: "Fresh seafood, wood-fired BBQ and crafted cocktails."
   },
   about: "Discover coastal flavours, vibrant nights & local energy at Generali's Bar & Kitchen, Kilifi. We believe in good food made for good company, served in a space that feels like home. From our kitchen to your table, it's all about the vibe.",
-  specials: `🍴 **Say Goodbye to Monday Blues!**
-**Fresh, Flavorful & Fast Deliveries within Kilifi and its Environs 🌴🚗**
-
-**🥘 Our Specials:**
-
-1. 🍗 Chips with Pan-Fried Chicken — **KSh 450**
-2. 🍟 Chips Masala with Crispy Chicken — **KSh 600**
-3. 🥩 ¼ Beef Pan-Fry with Ugali & Kachumbari — **KSh 400**
-4. 🍛 ¼ Mbuzi Wet Fry with Ugali & Greens — **KSh 500**
-5. 😋 ¼ Beef Wet Fry with Chips — **KSh 450**
-6. 🥔 Sautéed Potatoes with 2 Sausages — **KSh 300**
-7. 🥘 ¼ Beef Wet Fry with Ugali — **KSh 350**
-8. 🐓 Ask for our Special **Kuku Kienyeji** — Price on Request
-
----
-
-📞 **To place your order:**
-Call or WhatsApp **0723 836 288**
-Fast delivery, hot meals, happy vibes 🎉`,
+  specials: `
+<p>🍴 <strong>Say Goodbye to Monday Blues!</strong></p>
+<p><strong>Fresh, Flavorful & Fast Deliveries within Kilifi and its Environs 🌴🚗</strong></p>
+<br>
+<p><strong>🥘 Our Specials:</strong></p>
+<ul>
+    <li>Chips with Pan-Fried Chicken — <strong>KSh 450</strong></li>
+    <li>Chips Masala with Crispy Chicken — <strong>KSh 600</strong></li>
+    <li>¼ Beef Pan-Fry with Ugali & Kachumbari — <strong>KSh 400</strong></li>
+    <li>¼ Mbuzi Wet Fry with Ugali & Greens — <strong>KSh 500</strong></li>
+    <li>¼ Beef Wet Fry with Chips — <strong>KSh 450</strong></li>
+    <li>Sautéed Potatoes with 2 Sausages — <strong>KSh 300</strong></li>
+    <li>¼ Beef Wet Fry with Ugali — <strong>KSh 350</strong></li>
+    <li>Ask for our Special <strong>Kuku Kienyeji</strong> — Price on Request</li>
+</ul>
+<br>
+<p>📞 <strong>To place your order:</strong> Call or WhatsApp <strong>0723 836 288</strong></p>
+<p><em>Fast delivery, hot meals, happy vibes 🎉</em></p>`,
   menu: {
     overview: [
       { title: 'BBQ', items: [{ name: 'BBQ Platter', price: 'KSh 1,950' }, { name: 'Grilled Lamb Chops', price: 'KSh 1,250' }, { name: 'Charred Corn', price: 'KSh 250' }] },
