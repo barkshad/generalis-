@@ -11,6 +11,9 @@ import Lightbox from './components/Lightbox';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import Specials from './components/Specials';
+import Testimonials from './components/Testimonials';
+import Team from './components/Team';
+import ScrollToTop from './components/ScrollToTop';
 
 const initialData = {
   hero: {
@@ -49,11 +52,62 @@ const initialData = {
         { title: 'Desserts', items: [{ name: 'Coconut Tart', price: 'KSh 450' }, {name: 'Mango Sorbet', price: 'KSh 400'}] },
     ]
   },
+  events: [
+    {
+      image: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b6?auto=format&fit=crop&w=800&q=60',
+      title: 'Live DJ Nights',
+      date: 'Every Friday & Saturday',
+      description: 'Experience the best of Kilifi\'s nightlife with our resident DJs spinning the latest tracks from 8pm till late. No cover charge before 9pm.'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1627062495964-b746d8d64f2a?auto=format&fit=crop&w=800&q=60',
+      title: 'Weekend BBQ Bash',
+      date: 'Saturdays from 6pm',
+      description: 'Join us for a family-friendly BBQ every Saturday. Enjoy our famous grilled platters, great music, and a relaxed atmosphere.'
+    },
+    {
+      image: 'https://images.unsplash.com/photo-1579532582937-16c118933575?auto=format&fit=crop&w=800&q=60',
+      title: 'Happy Hour Specials',
+      date: 'Weekdays 3pm — 6pm',
+      description: 'Unwind after a long day with our happy hour. Enjoy special prices on select cocktails, beers, and tapas.'
+    }
+  ],
   gallery: [
     { src: 'https://images.unsplash.com/photo-1543352634-1b5e4d3edb9d?auto=format&fit=crop&w=800&q=60', caption: 'Vibrant cocktails lined up on the bar.' },
     { src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60', caption: 'A delicious and healthy meal served fresh.' },
     { src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=60', caption: 'Our chefs preparing a masterpiece in the kitchen.' },
     { src: 'https://images.unsplash.com/photo-1541542684-4b3b36f9a9b9?auto=format&fit=crop&w=800&q=60', caption: 'Cozy and inviting atmosphere for a perfect night out.' }
+  ],
+  testimonials: [
+    {
+      quote: "The seafood platter was absolutely divine! Freshest I've had in Kilifi. The vibe is amazing, perfect for a chill evening with friends.",
+      author: "Asha N.",
+      location: "Frequent Visitor"
+    },
+    {
+      quote: "Generali's never disappoints. Their BBQ is legendary and the cocktails are a work of art. A must-visit spot on the coast.",
+      author: "David M.",
+      location: "Nairobi Tourist"
+    },
+    {
+      quote: "We hosted a birthday party here and the staff were incredibly accommodating. The food was a hit with everyone. Highly recommend!",
+      author: "Fatima K.",
+      location: "Kilifi Resident"
+    }
+  ],
+  team: [
+      {
+          image: 'https://images.unsplash.com/photo-1583394293214-28ded15ee548?auto=format&fit=crop&w=500&q=60',
+          name: 'Chef Juma',
+          role: 'Head Chef',
+          bio: 'With over 15 years of experience in coastal cuisine, Chef Juma brings a passion for fresh, local ingredients to every dish he creates.'
+      },
+      {
+          image: 'https://images.unsplash.com/photo-1622281839936-0563229b3b9b?auto=format&fit=crop&w=500&q=60',
+          name: 'Maria',
+          role: 'Bar Manager',
+          bio: 'Our master mixologist, Maria, crafts unique cocktails that capture the spirit of Kilifi. Ask her for her signature Generali Mule!'
+      }
   ],
   rules: [
       'Smart casual recommended. No swimwear or flip-flops after 6pm.',
@@ -132,7 +186,7 @@ const App: React.FC = () => {
                ...(({ gallery, ...rest }) => rest)(initialData), // default text data
                ...savedTextData // override with saved data
            };
-           data = { ...textData, gallery: gallery.length > 0 ? gallery : initialData.gallery };
+           data = { ...initialData, ...textData, gallery: gallery.length > 0 ? gallery : initialData.gallery };
         } else {
           // One-time migration from old single localStorage key
           const oldDataString = window.localStorage.getItem('generalis-site-data');
@@ -220,11 +274,14 @@ const App: React.FC = () => {
         <About content={siteData.about} />
         <Specials content={siteData.specials} />
         <Menu content={siteData.menu} />
-        <Events />
+        <Events events={siteData.events} />
         <Gallery images={siteData.gallery} onImageClick={openLightbox} />
+        <Testimonials testimonials={siteData.testimonials} />
+        <Team members={siteData.team} />
         <Contact content={siteData.contact} rules={siteData.rules} />
       </main>
       <Footer onAdminClick={() => isAdmin ? openAdminDashboard() : setShowAdminLogin(true)} />
+      <ScrollToTop />
       {lightboxImage && <Lightbox src={lightboxImage} onClose={closeLightbox} />}
       {showAdminLogin && <AdminLogin onLogin={handleAdminLogin} onClose={() => setShowAdminLogin(false)} />}
       {isAdmin && showAdminDashboard && <AdminDashboard siteData={siteData} onSave={handleAdminSave} onCancel={handleAdminCancel} onLogout={handleAdminLogout} />}
