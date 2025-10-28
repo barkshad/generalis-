@@ -23,24 +23,25 @@ const IconSparkles: React.FC = () => (
 );
 
 
-const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
+const AdminDashboard = ({ siteData, onSave, onCancel, onLogout }) => {
   const [activeTab, setActiveTab] = useState('general');
+  const [localData, setLocalData] = useState(siteData);
   const [captionLoading, setCaptionLoading] = useState<number | null>(null);
 
   useEffect(() => {
     // Fallback migration for gallery format from string[] to {src, caption}[]
-    if (siteData.gallery && siteData.gallery.length > 0 && typeof siteData.gallery[0] === 'string') {
-        onUpdate(prev => ({
+    if (localData.gallery && localData.gallery.length > 0 && typeof localData.gallery[0] === 'string') {
+        setLocalData(prev => ({
             ...prev,
             gallery: prev.gallery.map((src: string) => ({ src, caption: '' }))
         }));
     }
-  }, []);
+  }, [localData.gallery]);
 
   const handleInputChange = (e, section, field = null) => {
     const { value } = e.target;
     if (field) {
-        onUpdate(prev => ({
+        setLocalData(prev => ({
             ...prev,
             [section]: {
                 ...prev[section],
@@ -48,13 +49,13 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
             }
         }));
     } else {
-        onUpdate(prev => ({ ...prev, [section]: value }));
+        setLocalData(prev => ({ ...prev, [section]: value }));
     }
   };
   
   const handleSpecialsChange = (e) => {
     const { value } = e.target;
-    onUpdate(prev => ({
+    setLocalData(prev => ({
         ...prev,
         specials: value
     }));
@@ -62,7 +63,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
 
   const handleMenuChange = (e, type, catIndex, itemIndex, field) => {
      const { value } = e.target;
-     onUpdate(prev => {
+     setLocalData(prev => {
          const newMenu = JSON.parse(JSON.stringify(prev.menu));
          newMenu[type][catIndex].items[itemIndex][field] = value;
          return { ...prev, menu: newMenu };
@@ -70,7 +71,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
   };
 
   const addMenuItem = (type, catIndex) => {
-      onUpdate(prev => {
+      setLocalData(prev => {
           const newMenu = JSON.parse(JSON.stringify(prev.menu));
           newMenu[type][catIndex].items.push({ name: 'New Item', price: 'KSh 0' });
           return { ...prev, menu: newMenu };
@@ -78,7 +79,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
   };
 
   const removeMenuItem = (type, catIndex, itemIndex) => {
-      onUpdate(prev => {
+      setLocalData(prev => {
           const newMenu = JSON.parse(JSON.stringify(prev.menu));
           newMenu[type][catIndex].items.splice(itemIndex, 1);
           return { ...prev, menu: newMenu };
@@ -87,7 +88,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
 
   const handleRuleChange = (e, index) => {
     const { value } = e.target;
-    onUpdate(prev => {
+    setLocalData(prev => {
         const newRules = [...prev.rules];
         newRules[index] = value;
         return { ...prev, rules: newRules };
@@ -95,14 +96,14 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
   };
 
   const addRule = () => {
-      onUpdate(prev => ({
+      setLocalData(prev => ({
           ...prev,
           rules: [...prev.rules, 'New rule.']
       }));
   };
 
   const removeRule = (index) => {
-      onUpdate(prev => {
+      setLocalData(prev => {
           const newRules = [...prev.rules];
           newRules.splice(index, 1);
           return { ...prev, rules: newRules };
@@ -128,7 +129,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
       });
 
       Promise.all(filePromises).then(newImages => {
-        onUpdate(prev => ({
+        setLocalData(prev => ({
           ...prev,
           gallery: [...prev.gallery, ...newImages]
         }));
@@ -138,7 +139,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
 
   const handleImageCaptionChange = (e, index) => {
       const { value } = e.target;
-      onUpdate(prev => {
+      setLocalData(prev => {
           const newGallery = [...prev.gallery];
           newGallery[index].caption = value;
           return { ...prev, gallery: newGallery };
@@ -146,7 +147,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
   };
 
   const handleImageDelete = (index) => {
-      onUpdate(prev => {
+      setLocalData(prev => {
           const newGallery = [...prev.gallery];
           newGallery.splice(index, 1);
           return { ...prev, gallery: newGallery };
@@ -154,7 +155,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
   };
 
   const moveImage = (index, direction) => {
-    onUpdate(prev => {
+    setLocalData(prev => {
         const newGallery = [...prev.gallery];
         const item = newGallery[index];
         const newIndex = direction === 'up' ? index - 1 : index + 1;
@@ -175,7 +176,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
       setCaptionLoading(index);
       try {
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-        const image = siteData.gallery[index];
+        const image = localData.gallery[index];
         const base64Data = image.src.split(',')[1];
         const mimeType = image.src.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)[1];
 
@@ -194,7 +195,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
         
         const caption = response.text.trim();
 
-        onUpdate(prev => {
+        setLocalData(prev => {
             const newGallery = [...prev.gallery];
             newGallery[index].caption = caption;
             return { ...prev, gallery: newGallery };
@@ -243,28 +244,28 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Hero Title</label>
-                  <input type="text" value={siteData.hero.title} onChange={(e) => handleInputChange(e, 'hero', 'title')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
+                  <input type="text" value={localData.hero.title} onChange={(e) => handleInputChange(e, 'hero', 'title')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
                   <p className="mt-1 text-xs text-gray-500">Use `&lt;span class="text-primary"&gt;...&lt;/span&gt;` to highlight text.</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Hero Subtitle</label>
-                  <textarea rows={2} value={siteData.hero.subtitle} onChange={(e) => handleInputChange(e, 'hero', 'subtitle')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                  <textarea rows={2} value={localData.hero.subtitle} onChange={(e) => handleInputChange(e, 'hero', 'subtitle')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
                 </div>
                  <div>
                   <label className="block text-sm font-medium text-gray-700">About Section</label>
-                  <textarea rows={4} value={siteData.about} onChange={(e) => handleInputChange(e, 'about')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                  <textarea rows={4} value={localData.about} onChange={(e) => handleInputChange(e, 'about')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
                 </div>
                  <div>
                   <label className="block text-sm font-medium text-gray-700">Contact Address</label>
-                  <input type="text" value={siteData.contact.address} onChange={(e) => handleInputChange(e, 'contact', 'address')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
+                  <input type="text" value={localData.contact.address} onChange={(e) => handleInputChange(e, 'contact', 'address')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
                 </div>
                  <div>
                   <label className="block text-sm font-medium text-gray-700">Contact Phone</label>
-                  <input type="text" value={siteData.contact.phone} onChange={(e) => handleInputChange(e, 'contact', 'phone')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
+                  <input type="text" value={localData.contact.phone} onChange={(e) => handleInputChange(e, 'contact', 'phone')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
                 </div>
                 <div className="pt-2">
                     <label className="block text-sm font-medium text-gray-700">House Rules</label>
-                    {siteData.rules.map((rule, index) => (
+                    {localData.rules.map((rule, index) => (
                         <div key={index} className="flex items-center gap-2 mt-1">
                             <input type="text" value={rule} onChange={(e) => handleRuleChange(e, index)} className="flex-grow border border-gray-300 rounded-md py-1 px-2 text-sm" />
                             <button onClick={() => removeRule(index)} className="text-gray-500 hover:text-red-500"><IconTrash /></button>
@@ -278,7 +279,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
             {activeTab === 'specials' && (
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Today's Specials</label>
-                    <textarea rows={15} value={siteData.specials} onChange={handleSpecialsChange} className="mt-1 font-mono text-sm block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                    <textarea rows={15} value={localData.specials} onChange={handleSpecialsChange} className="mt-1 font-mono text-sm block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
                     <p className="mt-1 text-xs text-gray-500">Use Markdown for formatting, e.g., `**Bold Text**`. Leave blank to hide the section.</p>
                 </div>
             )}
@@ -287,7 +288,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
                <div className="grid md:grid-cols-2 gap-6">
                  <div>
                     <h3 className="font-heading text-lg">Menu Overview</h3>
-                    {siteData.menu.overview.map((cat, catIndex) => (
+                    {localData.menu.overview.map((cat, catIndex) => (
                       <div key={catIndex} className="mt-2 p-3 border rounded-md">
                         <h4 className="font-semibold">{cat.title}</h4>
                         {cat.items.map((item, itemIndex) => (
@@ -303,7 +304,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
                  </div>
                   <div>
                     <h3 className="font-heading text-lg">Full Menu</h3>
-                     {siteData.menu.fullMenu.map((cat, catIndex) => (
+                     {localData.menu.fullMenu.map((cat, catIndex) => (
                       <div key={catIndex} className="mt-2 p-3 border rounded-md">
                         <h4 className="font-semibold">{cat.title}</h4>
                         {cat.items.map((item, itemIndex) => (
@@ -323,7 +324,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
             {activeTab === 'gallery' && (
               <div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {siteData.gallery.map((image, index) => (
+                  {localData.gallery.map((image, index) => (
                     <div key={index} className="group relative border rounded-lg p-2 space-y-2">
                       <img src={image.src} alt="" className="w-full h-28 object-cover rounded-md" />
                       <div className="flex items-center">
@@ -345,7 +346,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
                       </div>
                       <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                          <button onClick={() => moveImage(index, 'up')} disabled={index === 0} className="p-1 bg-white/80 rounded-full shadow hover:bg-white disabled:opacity-50"><IconArrowUp /></button>
-                         <button onClick={() => moveImage(index, 'down')} disabled={index === siteData.gallery.length - 1} className="p-1 bg-white/80 rounded-full shadow hover:bg-white disabled:opacity-50"><IconArrowDown /></button>
+                         <button onClick={() => moveImage(index, 'down')} disabled={index === localData.gallery.length - 1} className="p-1 bg-white/80 rounded-full shadow hover:bg-white disabled:opacity-50"><IconArrowDown /></button>
                          <button onClick={() => handleImageDelete(index)} className="p-1 bg-white/80 rounded-full shadow hover:bg-red-500 hover:text-white"><IconTrash /></button>
                       </div>
                     </div>
@@ -370,7 +371,7 @@ const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
 
         <footer className="p-4 bg-gray-50 border-t flex justify-end gap-3 flex-shrink-0">
           <button onClick={onCancel} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">Discard Changes</button>
-          <button onClick={onSave} className="px-6 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90">Save & Close</button>
+          <button onClick={() => onSave(localData)} className="px-6 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90">Save & Close</button>
         </footer>
       </div>
     </>

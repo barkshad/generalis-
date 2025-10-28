@@ -115,7 +115,6 @@ const App: React.FC = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [siteData, setSiteData] = useState(initialData);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
-  const [originalSiteData, setOriginalSiteData] = useState<typeof initialData | null>(null);
   const [isAdmin, setIsAdmin] = useState(!!window.sessionStorage.getItem('isAdmin'));
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [showAdminDashboard, setShowAdminDashboard] = useState(false);
@@ -169,32 +168,25 @@ const App: React.FC = () => {
     loadData();
   }, []);
 
-  useEffect(() => {
-    if (!isDataLoaded) return; // Don't save before initial data is loaded
-
-    const saveData = async () => {
-      try {
-        const { gallery, ...textData } = siteData;
-        window.localStorage.setItem('generalis-site-data-text', JSON.stringify(textData));
-        await dbSet(GALLERY_KEY, gallery);
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-             console.error("Could not save site data: Quota exceeded. The gallery is too large to be stored.", error);
-             alert("Error: Could not save changes. The gallery has too many high-resolution images. Please remove some images and try again.");
-        } else {
-             console.error("Could not save site data", error);
-        }
+  const saveData = useCallback(async (dataToSave: typeof initialData) => {
+    try {
+      const { gallery, ...textData } = dataToSave;
+      window.localStorage.setItem('generalis-site-data-text', JSON.stringify(textData));
+      await dbSet(GALLERY_KEY, gallery);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+           console.error("Could not save site data: Quota exceeded. The gallery is too large to be stored.", error);
+           alert("Error: Could not save changes. The gallery has too many high-resolution images. Please remove some images and try again.");
+      } else {
+           console.error("Could not save site data", error);
       }
-    };
-
-    saveData();
-  }, [siteData, isDataLoaded]);
+    }
+  }, []);
   
   const openLightbox = useCallback((src: string) => setLightboxImage(src), []);
   const closeLightbox = useCallback(() => setLightboxImage(null), []);
 
   const openAdminDashboard = () => {
-    setOriginalSiteData(JSON.parse(JSON.stringify(siteData))); // Deep copy for snapshot
     setShowAdminDashboard(true);
   };
 
@@ -206,25 +198,18 @@ const App: React.FC = () => {
   };
 
   const handleAdminLogout = () => {
-    if (originalSiteData) { // If editing was in progress, revert changes
-        setSiteData(originalSiteData);
-        setOriginalSiteData(null);
-    }
     setIsAdmin(false);
     window.sessionStorage.removeItem('isAdmin');
     setShowAdminDashboard(false);
   }
 
-  const handleAdminSave = () => {
-    setOriginalSiteData(null); // Clear snapshot, changes are already live
+  const handleAdminSave = (newData: typeof initialData) => {
+    setSiteData(newData);
+    saveData(newData);
     setShowAdminDashboard(false);
   };
 
   const handleAdminCancel = () => {
-    if (originalSiteData) {
-        setSiteData(originalSiteData); // Revert changes from snapshot
-    }
-    setOriginalSiteData(null);
     setShowAdminDashboard(false);
   };
 
@@ -243,7 +228,7 @@ const App: React.FC = () => {
       <Footer onAdminClick={() => isAdmin ? openAdminDashboard() : setShowAdminLogin(true)} />
       {lightboxImage && <Lightbox src={lightboxImage} onClose={closeLightbox} />}
       {showAdminLogin && <AdminLogin onLogin={handleAdminLogin} onClose={() => setShowAdminLogin(false)} />}
-      {isAdmin && showAdminDashboard && <AdminDashboard siteData={siteData} onUpdate={setSiteData} onSave={handleAdminSave} onCancel={handleAdminCancel} onLogout={handleAdminLogout} />}
+      {isAdmin && showAdminDashboard && <AdminDashboard siteData={siteData} onSave={handleAdminSave} onCancel={handleAdminCancel} onLogout={handleAdminLogout} />}
     </>
   );
 };

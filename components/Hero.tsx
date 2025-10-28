@@ -15,6 +15,7 @@ const Hero: React.FC<{ content: { title: string; subtitle: string } }> = ({ cont
           <p className="mt-4 max-w-2xl text-lg opacity-90">{content.subtitle}</p>
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <a href="https://wa.me/254723836288?text=Hello%20Generali's%20Bar%20-%20I'd%20like%20to%20reserve%20a%20table" target="_blank" rel="noopener noreferrer" className="inline-block px-6 py-3 font-semibold uppercase rounded-md border border-primary bg-primary text-charcoal hover:bg-primary/90 transition-colors">Reserve a table</a>
+            <a href="https://wa.me/254723836288?text=Hello%20Generali's%20Bar%20-%20I'd%20like%20to%20order%20via%20WhatsApp" target="_blank" rel="noopener noreferrer" className="inline-block px-6 py-3 font-semibold uppercase rounded-md border border-white bg-white/10 hover:bg-white/20 transition-colors">Place an Order</a>
             <a href="#menu" className="inline-block px-6 py-3 font-semibold uppercase rounded-md border border-white bg-white/10 hover:bg-white/20 transition-colors">View Menu</a>
           </div>
         </div>
