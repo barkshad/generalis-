@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface MenuItem {
   name: string;
@@ -40,8 +40,40 @@ const FullMenuCard: React.FC<{ category: MenuCategory }> = ({ category }) => (
 
 
 const Menu: React.FC<{ content: { overview: MenuCategory[]; fullMenu: MenuCategory[] } }> = ({ content }) => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
   return (
-    <section id="menu" className="bg-gray-50 max-w-6xl mx-auto px-6 py-20 scroll-mt-20">
+    <section 
+      ref={sectionRef}
+      id="menu" 
+      className={`bg-gray-50 max-w-6xl mx-auto px-6 py-20 scroll-mt-20 transition-all duration-700 ease-out transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}
+    >
       <div className="grid md:grid-cols-2 gap-10 items-center">
         <div>
           <h2 className="font-heading text-3xl md:text-4xl">Menu Overview</h2>

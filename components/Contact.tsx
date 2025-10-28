@@ -1,11 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const Contact: React.FC<{ content: { address: string; phone: string }, rules: string[] }> = ({ content, rules }) => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentRef = sectionRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, []);
+
   const telLink = `tel:${content.phone.replace(/\s/g, '')}`;
   const whatsappLink = `https://wa.me/${content.phone.replace(/\s/g, '').replace('+', '')}?text=Hi%20Generali's%20Bar%20-%20I'd%20like%20to%20book%20a%20table`;
   
   return (
-    <section id="contact" className="bg-white max-w-6xl mx-auto px-6 py-20 scroll-mt-20">
+    <section 
+      ref={sectionRef}
+      id="contact" 
+      className={`bg-white max-w-6xl mx-auto px-6 py-20 scroll-mt-20 transition-all duration-700 ease-out transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}
+    >
       <div className="grid md:grid-cols-2 gap-12 items-start">
         <div>
           <h2 className="font-heading text-3xl md:text-4xl">Contact & Location</h2>
