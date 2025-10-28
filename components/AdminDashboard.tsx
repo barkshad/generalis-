@@ -23,364 +23,315 @@ const IconSparkles: React.FC = () => (
 );
 
 
-const AdminDashboard = ({ siteData, onUpdate, onClose, onLogout }) => {
+const AdminDashboard = ({ siteData, onUpdate, onSave, onCancel, onLogout }) => {
   const [activeTab, setActiveTab] = useState('general');
-  const [formData, setFormData] = useState(siteData);
   const [captionLoading, setCaptionLoading] = useState<number | null>(null);
 
   useEffect(() => {
-    // Fallback migration for gallery format
-    if (formData.gallery && formData.gallery.length > 0 && typeof formData.gallery[0] === 'string') {
-        setFormData(prev => ({
+    // Fallback migration for gallery format from string[] to {src, caption}[]
+    if (siteData.gallery && siteData.gallery.length > 0 && typeof siteData.gallery[0] === 'string') {
+        onUpdate(prev => ({
             ...prev,
-            gallery: prev.gallery.map(src => ({ src, caption: '' }))
+            gallery: prev.gallery.map((src: string) => ({ src, caption: '' }))
         }));
     }
   }, []);
 
-  const handleGeneralChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, hero: { ...prev.hero, [name]: value } }));
-  };
-
-  const handleContactChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, contact: { ...prev.contact, [name]: value } }));
+  const handleInputChange = (e, section, field) => {
+    const { value } = e.target;
+    onUpdate(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
+    }));
   };
   
-  const handleSave = () => {
-      onUpdate(formData);
-      alert('Changes saved successfully!');
+  const handleSpecialsChange = (e) => {
+    const { value } = e.target;
+    onUpdate(prev => ({
+        ...prev,
+        specials: value
+    }));
+  }
+
+  const handleMenuChange = (e, type, catIndex, itemIndex, field) => {
+     const { value } = e.target;
+     onUpdate(prev => {
+         const newMenu = JSON.parse(JSON.stringify(prev.menu));
+         newMenu[type][catIndex].items[itemIndex][field] = value;
+         return { ...prev, menu: newMenu };
+     });
   };
 
-  const renderGeneralTab = () => (
-    <div className="space-y-6">
-      <div>
-        <h3 className="text-lg font-heading mb-2">Hero Section</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Hero Title (HTML supported)</label>
-            <textarea name="title" value={formData.hero.title} onChange={handleGeneralChange} rows={3} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"></textarea>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Hero Subtitle</label>
-            <textarea name="subtitle" value={formData.hero.subtitle} onChange={handleGeneralChange} rows={4} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm"></textarea>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 className="text-lg font-heading mb-2">Contact Info</h3>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Address</label>
-            <input type="text" name="address" value={formData.contact.address} onChange={handleContactChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Phone</label>
-            <input type="text" name="phone" value={formData.contact.phone} onChange={handleContactChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm" />
-          </div>
-        </div>
-      </div>
-      <button onClick={handleSave} className="px-4 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90">Save General Info</button>
-    </div>
-  );
-
-  const renderSpecialsTab = () => {
-    const handleSpecialsChange = (e) => {
-        setFormData(prev => ({ ...prev, specials: e.target.value }));
-    };
-
-    return (
-        <div className="space-y-6">
-            <h3 className="text-lg font-heading mb-2">Today's Specials</h3>
-            <p className="text-sm text-gray-600 mb-4">Enter the text for the specials board. Use **text** for bolding. Leave empty to hide the section.</p>
-            <div>
-                <label className="block text-sm font-medium text-gray-700">Specials Content</label>
-                <textarea 
-                    name="specials" 
-                    value={formData.specials} 
-                    onChange={handleSpecialsChange} 
-                    rows={15} 
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm font-mono"
-                    placeholder="Enter today's specials here..."
-                ></textarea>
-            </div>
-            <button onClick={handleSave} className="px-4 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90">Save Specials</button>
-        </div>
-    );
+  const addMenuItem = (type, catIndex) => {
+      onUpdate(prev => {
+          const newMenu = JSON.parse(JSON.stringify(prev.menu));
+          newMenu[type][catIndex].items.push({ name: 'New Item', price: 'KSh 0' });
+          return { ...prev, menu: newMenu };
+      });
   };
 
-  const renderMenuTab = () => {
-    const handleMenuChange = (e, section, catIndex, itemIndex) => {
-        const {name, value} = e.target;
-        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-        if (itemIndex === null) { // Editing category title
-             newMenuData[section][catIndex][name] = value;
-        } else {
-            newMenuData[section][catIndex].items[itemIndex][name] = value;
-        }
-        setFormData(prev => ({...prev, menu: newMenuData}));
-    };
-    
-    const addMenuItem = (section, catIndex) => {
-        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-        newMenuData[section][catIndex].items.push({name: 'New Item', price: 'KSh 0'});
-        setFormData(prev => ({...prev, menu: newMenuData}));
-    };
+  const removeMenuItem = (type, catIndex, itemIndex) => {
+      onUpdate(prev => {
+          const newMenu = JSON.parse(JSON.stringify(prev.menu));
+          newMenu[type][catIndex].items.splice(itemIndex, 1);
+          return { ...prev, menu: newMenu };
+      });
+  };
 
-    const deleteMenuItem = (section, catIndex, itemIndex) => {
-         const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-         newMenuData[section][catIndex].items.splice(itemIndex, 1);
-         setFormData(prev => ({...prev, menu: newMenuData}));
-    };
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const filePromises = Array.from(files).map(file => {
+        return new Promise<{ src: string, caption: string }>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (readEvent) => {
+            if (readEvent.target && typeof readEvent.target.result === 'string') {
+              resolve({ src: readEvent.target.result, caption: '' });
+            } else {
+              reject(new Error("Could not read file."));
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      });
 
-    const addCategory = (section) => {
-      const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-      newMenuData[section].push({ title: 'New Category', items: [] });
-      setFormData(prev => ({ ...prev, menu: newMenuData }));
-    };
+      Promise.all(filePromises).then(newImages => {
+        onUpdate(prev => ({
+          ...prev,
+          gallery: [...prev.gallery, ...newImages]
+        }));
+      }).catch(error => console.error("Error reading files:", error));
+    }
+  };
 
-    const deleteCategory = (section, catIndex) => {
-        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-        newMenuData[section].splice(catIndex, 1);
-        setFormData(prev => ({ ...prev, menu: newMenuData }));
-    };
-    
-    const reorderArrayItem = (list, index, direction) => {
-        const newList = [...list];
+  const handleImageCaptionChange = (e, index) => {
+      const { value } = e.target;
+      onUpdate(prev => {
+          const newGallery = [...prev.gallery];
+          newGallery[index].caption = value;
+          return { ...prev, gallery: newGallery };
+      });
+  };
+
+  const handleImageDelete = (index) => {
+      onUpdate(prev => {
+          const newGallery = [...prev.gallery];
+          newGallery.splice(index, 1);
+          return { ...prev, gallery: newGallery };
+      });
+  };
+
+  const moveImage = (index, direction) => {
+    onUpdate(prev => {
+        const newGallery = [...prev.gallery];
+        const item = newGallery[index];
         const newIndex = direction === 'up' ? index - 1 : index + 1;
-        [newList[index], newList[newIndex]] = [newList[newIndex], newList[index]];
-        return newList;
-    };
-
-    const handleReorderCategory = (sectionKey, catIndex, direction) => {
-        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-        newMenuData[sectionKey] = reorderArrayItem(newMenuData[sectionKey], catIndex, direction);
-        setFormData(prev => ({ ...prev, menu: newMenuData }));
-    };
-
-    const handleReorderItem = (sectionKey, catIndex, itemIndex, direction) => {
-        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-        const items = newMenuData[sectionKey][catIndex].items;
-        newMenuData[sectionKey][catIndex].items = reorderArrayItem(items, itemIndex, direction);
-        setFormData(prev => ({ ...prev, menu: newMenuData }));
-    };
-
-    const handleDuplicateCategory = (sectionKey, catIndex) => {
-        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-        const originalCategory = newMenuData[sectionKey][catIndex];
-        const duplicatedCategory = JSON.parse(JSON.stringify(originalCategory));
-        duplicatedCategory.title = `Copy of ${originalCategory.title}`;
-        newMenuData[sectionKey].splice(catIndex + 1, 0, duplicatedCategory);
-        setFormData(prev => ({ ...prev, menu: newMenuData }));
-    };
-
-    const handleDuplicateItem = (sectionKey, catIndex, itemIndex) => {
-        const newMenuData = JSON.parse(JSON.stringify(formData.menu));
-        const originalItem = newMenuData[sectionKey][catIndex].items[itemIndex];
-        const duplicatedItem = JSON.parse(JSON.stringify(originalItem));
-        newMenuData[sectionKey][catIndex].items.splice(itemIndex + 1, 0, duplicatedItem);
-        setFormData(prev => ({ ...prev, menu: newMenuData }));
-    };
-
-    return (
-        <div className="space-y-8">
-            {Object.keys(formData.menu).map(sectionKey => (
-                 <div key={sectionKey}>
-                    <h3 className="text-xl font-heading mb-3 capitalize border-b pb-2">{sectionKey.replace('fullMenu', 'Full Menu')}</h3>
-                    {formData.menu[sectionKey].map((category, catIndex) => (
-                        <div key={catIndex} className="p-4 border rounded-md mb-4 bg-gray-50/50">
-                            <div className="flex justify-between items-center mb-3">
-                                <input type="text" name="title" value={category.title} onChange={e => handleMenuChange(e, sectionKey, catIndex, null)} className="font-semibold text-lg border-b-2 border-transparent focus:border-primary outline-none bg-transparent flex-grow w-full"/>
-                                <div className="flex items-center gap-1">
-                                    <button onClick={() => handleReorderCategory(sectionKey, catIndex, 'up')} disabled={catIndex === 0} title="Move Up" className="p-2 text-gray-500 hover:bg-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"><IconArrowUp /></button>
-                                    <button onClick={() => handleReorderCategory(sectionKey, catIndex, 'down')} disabled={catIndex === formData.menu[sectionKey].length - 1} title="Move Down" className="p-2 text-gray-500 hover:bg-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"><IconArrowDown /></button>
-                                    <button onClick={() => handleDuplicateCategory(sectionKey, catIndex)} title="Duplicate Category" className="p-2 text-blue-500 hover:bg-blue-100 rounded-full"><IconCopy /></button>
-                                    <button onClick={() => deleteCategory(sectionKey, catIndex)} title="Delete Category" className="p-2 text-red-500 hover:bg-red-100 rounded-full shrink-0"><IconTrash /></button>
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                {category.items.map((item, itemIndex) => (
-                                    <div key={itemIndex} className="flex items-center gap-2">
-                                        <input type="text" name="name" value={item.name} onChange={e => handleMenuChange(e, sectionKey, catIndex, itemIndex)} className="flex-grow rounded-md border-gray-300 shadow-sm sm:text-sm focus:ring-primary focus:border-primary"/>
-                                        <input type="text" name="price" value={item.price} onChange={e => handleMenuChange(e, sectionKey, catIndex, itemIndex)} className="w-32 rounded-md border-gray-300 shadow-sm sm:text-sm focus:ring-primary focus:border-primary"/>
-                                        <div className="flex items-center">
-                                            <button onClick={() => handleReorderItem(sectionKey, catIndex, itemIndex, 'up')} disabled={itemIndex === 0} title="Move Up" className="p-2 text-gray-500 hover:bg-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"><IconArrowUp /></button>
-                                            <button onClick={() => handleReorderItem(sectionKey, catIndex, itemIndex, 'down')} disabled={itemIndex === category.items.length - 1} title="Move Down" className="p-2 text-gray-500 hover:bg-gray-200 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"><IconArrowDown /></button>
-                                            <button onClick={() => handleDuplicateItem(sectionKey, catIndex, itemIndex)} title="Duplicate Item" className="p-2 text-blue-500 hover:bg-blue-100 rounded-full"><IconCopy /></button>
-                                            <button onClick={() => deleteMenuItem(sectionKey, catIndex, itemIndex)} title="Delete Item" className="p-2 text-red-600 hover:bg-red-100 rounded-full shrink-0"><IconTrash /></button>
-                                        </div>
-                                    </div>
-                                ))}
-                                {category.items.length === 0 && <p className="text-xs text-gray-500 text-center py-2">This category is empty. Add an item below.</p>}
-                            </div>
-                             <button onClick={() => addMenuItem(sectionKey, catIndex)} className="mt-3 text-sm text-primary font-semibold hover:underline">+ Add Item</button>
-                        </div>
-                    ))}
-                    <button onClick={() => addCategory(sectionKey)} className="mt-2 text-sm text-primary font-semibold border border-dashed border-primary/50 rounded-md p-2 w-full hover:bg-primary/10 transition-colors">+ Add Category to {sectionKey.replace('fullMenu', 'Full Menu')}</button>
-                 </div>
-            ))}
-            <button onClick={handleSave} className="mt-4 px-6 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90">Save Menu Changes</button>
-        </div>
-    );
-  };
-
-  const renderGalleryTab = () => {
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const newImage = { src: event.target?.result as string, caption: '' };
-                setFormData(prev => ({
-                    ...prev,
-                    gallery: [...prev.gallery, newImage]
-                }));
-            };
-            reader.readAsDataURL(file);
+        if (newIndex >= 0 && newIndex < newGallery.length) {
+            newGallery.splice(index, 1);
+            newGallery.splice(newIndex, 0, item);
         }
-    };
+        return { ...prev, gallery: newGallery };
+    });
+  };
+  
+  const generateCaption = async (index: number) => {
+      if (!process.env.API_KEY) {
+          alert("Gemini API Key is not set. Cannot generate caption.");
+          return;
+      }
 
-    const handleCaptionChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-        const newGallery = [...formData.gallery];
-        newGallery[index].caption = e.target.value;
-        setFormData(prev => ({ ...prev, gallery: newGallery }));
-    };
+      setCaptionLoading(index);
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const image = siteData.gallery[index];
+        const base64Data = image.src.split(',')[1];
+        const mimeType = image.src.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)[1];
 
-    const generateCaption = async (index: number) => {
-        const image = formData.gallery[index];
-        if (!image || !image.src) return;
+        const imagePart = {
+            inlineData: {
+                data: base64Data,
+                mimeType,
+            },
+        };
+        const textPart = { text: "Describe this image for a restaurant's website gallery. Be concise and appealing. Focus on food, atmosphere, or events. Example: 'Vibrant cocktails lined up on the bar.'" };
+        
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: { parts: [imagePart, textPart] }
+        });
+        
+        const caption = response.text.trim();
 
-        setCaptionLoading(index);
-        try {
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-            
-            const base64Data = image.src.split(',')[1];
-            const mimeType = image.src.match(/data:(.*);base64/)?.[1] || 'image/jpeg';
-
-            const imagePart = {
-                inlineData: { data: base64Data, mimeType },
-            };
-            const textPart = {
-                text: "Write a short, engaging caption for this image. The image is for a bar and kitchen's website gallery. Focus on the vibe, the food, or the atmosphere.",
-            };
-            
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: { parts: [imagePart, textPart] },
-            });
-
-            const caption = response.text.trim();
-            const newGallery = [...formData.gallery];
+        onUpdate(prev => {
+            const newGallery = [...prev.gallery];
             newGallery[index].caption = caption;
-            setFormData(prev => ({ ...prev, gallery: newGallery }));
+            return { ...prev, gallery: newGallery };
+        });
 
-        } catch (error) {
-            console.error("Error generating caption:", error);
-            alert("Failed to generate caption. Please check the console for details.");
-        } finally {
-            setCaptionLoading(null);
-        }
-    };
-
-    const deleteImage = (index) => {
-        const newGallery = formData.gallery.filter((_, i) => i !== index);
-        setFormData(prev => ({...prev, gallery: newGallery}));
-    };
-
-    return (
-        <div className="space-y-6">
-            <h3 className="text-lg font-heading mb-2">Manage Gallery</h3>
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Upload New Image</label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                    <div className="space-y-1 text-center">
-                         <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" /></svg>
-                        <div className="flex text-sm text-gray-600">
-                            <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary/80 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary">
-                                <span>Upload a file</span>
-                                <input id="file-upload" name="file-upload" type="file" className="sr-only" accept="image/*" onChange={handleImageUpload} />
-                            </label>
-                            <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                    </div>
-                </div>
-            </div>
-
-            <div className="space-y-4 mt-4 max-h-96 overflow-y-auto pr-2">
-                {formData.gallery.map((image, index) => (
-                    <div key={index} className="flex items-start gap-4 p-3 border rounded-md bg-white">
-                        <img src={image.src} className="w-24 h-24 object-cover rounded-md flex-shrink-0" alt={`Gallery item ${index+1}`} />
-                        <div className="flex-grow space-y-2">
-                            <label className="block text-xs font-medium text-gray-500">Caption</label>
-                            <input 
-                                type="text" 
-                                value={image.caption} 
-                                onChange={(e) => handleCaptionChange(e, index)} 
-                                placeholder="Enter a caption..." 
-                                className="w-full rounded-md border-gray-300 shadow-sm sm:text-sm focus:ring-primary focus:border-primary" 
-                            />
-                            <div className="flex items-center justify-between pt-1">
-                                 <button 
-                                    onClick={() => generateCaption(index)}
-                                    disabled={captionLoading === index}
-                                    className="flex items-center gap-1.5 text-sm text-primary font-semibold hover:underline disabled:opacity-50 disabled:cursor-wait"
-                                >
-                                    {captionLoading === index ? (
-                                        <>
-                                         <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                         Generating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <IconSparkles />
-                                            Generate with AI
-                                        </>
-                                    )}
-                                </button>
-                                <button onClick={() => deleteImage(index)} title="Delete Image" className="text-red-600 hover:text-red-800 p-1 rounded-full shrink-0">
-                                    <IconTrash />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <button onClick={handleSave} className="mt-4 px-4 py-2 bg-primary text-white font-semibold rounded-md hover:bg-primary/90">Save Gallery Changes</button>
-        </div>
-    );
+      } catch(e) {
+        console.error("Error generating caption", e);
+        alert("Could not generate caption. See console for details.");
+      } finally {
+        setCaptionLoading(null);
+      }
   };
+
+  const tabs = [
+      { id: 'general', label: 'General' },
+      { id: 'specials', label: 'Specials' },
+      { id: 'menu', label: 'Menu' },
+      { id: 'gallery', label: 'Gallery' },
+  ];
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl max-w-4xl w-full h-[90vh] flex flex-col">
-        <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="font-heading text-2xl">Admin Dashboard</h2>
-          <div>
-            <button onClick={onLogout} className="text-sm font-semibold uppercase hover:text-primary mr-4">Logout</button>
-            <button onClick={onClose} className="text-2xl hover:text-primary">&times;</button>
+    <>
+      <div className="fixed inset-0 bg-black/50 z-40 animate-fade-in" onClick={onCancel}></div>
+      <div className="fixed top-0 right-0 h-full w-full max-w-xl bg-white shadow-2xl z-50 flex flex-col animate-slide-in">
+        <header className="p-6 border-b flex justify-between items-center flex-shrink-0">
+          <h2 className="font-heading text-2xl">Live Editor</h2>
+          <div className="flex items-center gap-4">
+             <button onClick={onLogout} className="text-sm text-gray-600 hover:text-red-500">Logout</button>
+             <button onClick={onCancel} className="text-3xl text-gray-500 hover:text-gray-800">&times;</button>
           </div>
-        </div>
-        <div className="flex flex-grow overflow-hidden">
-          <div className="w-1/4 border-r bg-gray-50 p-4">
-            <nav className="flex flex-col gap-2">
-              <button onClick={() => setActiveTab('general')} className={`p-2 rounded text-left ${activeTab === 'general' ? 'bg-primary/20 text-primary' : 'hover:bg-gray-200'}`}>General Info</button>
-              <button onClick={() => setActiveTab('specials')} className={`p-2 rounded text-left ${activeTab === 'specials' ? 'bg-primary/20 text-primary' : 'hover:bg-gray-200'}`}>Specials</button>
-              <button onClick={() => setActiveTab('menu')} className={`p-2 rounded text-left ${activeTab === 'menu' ? 'bg-primary/20 text-primary' : 'hover:bg-gray-200'}`}>Menu</button>
-              <button onClick={() => setActiveTab('gallery')} className={`p-2 rounded text-left ${activeTab === 'gallery' ? 'bg-primary/20 text-primary' : 'hover:bg-gray-200'}`}>Gallery</button>
+        </header>
+
+        <main className="flex-grow p-6 overflow-y-auto">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-6" aria-label="Tabs">
+              {tabs.map(tab => (
+                 <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`${activeTab === tab.id ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}>
+                     {tab.label}
+                 </button>
+              ))}
             </nav>
           </div>
-          <div className="w-3/4 p-6 overflow-y-auto bg-gray-50/50">
-            {activeTab === 'general' && renderGeneralTab()}
-            {activeTab === 'specials' && renderSpecialsTab()}
-            {activeTab === 'menu' && renderMenuTab()}
-            {activeTab === 'gallery' && renderGalleryTab()}
+
+          <div className="mt-6">
+            {activeTab === 'general' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Hero Title</label>
+                  <input type="text" value={siteData.hero.title} onChange={(e) => handleInputChange(e, 'hero', 'title')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
+                  <p className="mt-1 text-xs text-gray-500">Use `&lt;span class="text-primary"&gt;...&lt;/span&gt;` to highlight text.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Hero Subtitle</label>
+                  <textarea rows={3} value={siteData.hero.subtitle} onChange={(e) => handleInputChange(e, 'hero', 'subtitle')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                </div>
+                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Contact Address</label>
+                  <input type="text" value={siteData.contact.address} onChange={(e) => handleInputChange(e, 'contact', 'address')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
+                </div>
+                 <div>
+                  <label className="block text-sm font-medium text-gray-700">Contact Phone</label>
+                  <input type="text" value={siteData.contact.phone} onChange={(e) => handleInputChange(e, 'contact', 'phone')} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary" />
+                </div>
+              </div>
+            )}
+            
+            {activeTab === 'specials' && (
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">Today's Specials</label>
+                    <textarea rows={15} value={siteData.specials} onChange={handleSpecialsChange} className="mt-1 font-mono text-sm block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary focus:border-primary"></textarea>
+                    <p className="mt-1 text-xs text-gray-500">Use Markdown for formatting, e.g., `**Bold Text**`. Leave blank to hide the section.</p>
+                </div>
+            )}
+
+            {activeTab === 'menu' && (
+               <div className="grid md:grid-cols-2 gap-6">
+                 <div>
+                    <h3 className="font-heading text-lg">Menu Overview</h3>
+                    {siteData.menu.overview.map((cat, catIndex) => (
+                      <div key={catIndex} className="mt-2 p-3 border rounded-md">
+                        <h4 className="font-semibold">{cat.title}</h4>
+                        {cat.items.map((item, itemIndex) => (
+                           <div key={itemIndex} className="flex items-center gap-2 mt-1">
+                             <input type="text" value={item.name} onChange={(e) => handleMenuChange(e, 'overview', catIndex, itemIndex, 'name')} className="flex-grow border border-gray-300 rounded-md py-1 px-2 text-sm" />
+                             <input type="text" value={item.price} onChange={(e) => handleMenuChange(e, 'overview', catIndex, itemIndex, 'price')} className="w-28 border border-gray-300 rounded-md py-1 px-2 text-sm" />
+                             <button onClick={() => removeMenuItem('overview', catIndex, itemIndex)} className="text-gray-500 hover:text-red-500"><IconTrash /></button>
+                           </div>
+                        ))}
+                         <button onClick={() => addMenuItem('overview', catIndex)} className="mt-2 text-sm text-primary hover:underline">+ Add Item</button>
+                      </div>
+                    ))}
+                 </div>
+                  <div>
+                    <h3 className="font-heading text-lg">Full Menu</h3>
+                     {siteData.menu.fullMenu.map((cat, catIndex) => (
+                      <div key={catIndex} className="mt-2 p-3 border rounded-md">
+                        <h4 className="font-semibold">{cat.title}</h4>
+                        {cat.items.map((item, itemIndex) => (
+                           <div key={itemIndex} className="flex items-center gap-2 mt-1">
+                             <input type="text" value={item.name} onChange={(e) => handleMenuChange(e, 'fullMenu', catIndex, itemIndex, 'name')} className="flex-grow border border-gray-300 rounded-md py-1 px-2 text-sm" />
+                             <input type="text" value={item.price} onChange={(e) => handleMenuChange(e, 'fullMenu', catIndex, itemIndex, 'price')} className="w-28 border border-gray-300 rounded-md py-1 px-2 text-sm" />
+                             <button onClick={() => removeMenuItem('fullMenu', catIndex, itemIndex)} className="text-gray-500 hover:text-red-500"><IconTrash /></button>
+                           </div>
+                        ))}
+                        <button onClick={() => addMenuItem('fullMenu', catIndex)} className="mt-2 text-sm text-primary hover:underline">+ Add Item</button>
+                      </div>
+                    ))}
+                 </div>
+               </div>
+            )}
+            
+            {activeTab === 'gallery' && (
+              <div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {siteData.gallery.map((image, index) => (
+                    <div key={index} className="group relative border rounded-lg p-2 space-y-2">
+                      <img src={image.src} alt="" className="w-full h-28 object-cover rounded-md" />
+                      <div className="flex items-center">
+                        <input
+                           type="text"
+                           value={image.caption}
+                           onChange={(e) => handleImageCaptionChange(e, index)}
+                           placeholder="Add a caption..."
+                           className="flex-grow text-xs border-gray-300 rounded-md py-1 px-2"
+                        />
+                         <button 
+                            onClick={() => generateCaption(index)} 
+                            disabled={captionLoading === index}
+                            className="ml-1 p-1 text-primary/80 hover:text-primary disabled:opacity-50"
+                            title="Generate caption with AI"
+                        >
+                            {captionLoading === index ? <div className="w-4 h-4 border-2 border-primary/50 border-t-primary rounded-full animate-spin"></div> : <IconSparkles />}
+                        </button>
+                      </div>
+                      <div className="absolute top-1 right-1 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button onClick={() => moveImage(index, 'up')} disabled={index === 0} className="p-1 bg-white/80 rounded-full shadow hover:bg-white disabled:opacity-50"><IconArrowUp /></button>
+                         <button onClick={() => moveImage(index, 'down')} disabled={index === siteData.gallery.length - 1} className="p-1 bg-white/80 rounded-full shadow hover:bg-white disabled:opacity-50"><IconArrowDown /></button>
+                         <button onClick={() => handleImageDelete(index)} className="p-1 bg-white/80 rounded-full shadow hover:bg-red-500 hover:text-white"><IconTrash /></button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 p-4 border-t">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Upload New Image(s)</label>
+                    <input 
+                        type="file" 
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageUpload}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                        aria-label="Upload new images to the gallery"
+                    />
+                </div>
+              </div>
+            )}
+
           </div>
-        </div>
+        </main>
+
+        <footer className="p-4 bg-gray-50 border-t flex justify-end gap-3 flex-shrink-0">
+          <button onClick={onCancel} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">Discard Changes</button>
+          <button onClick={onSave} className="px-6 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90">Save & Close</button>
+        </footer>
       </div>
-    </div>
+    </>
   );
 };
 

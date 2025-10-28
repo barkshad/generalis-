@@ -79,6 +79,7 @@ const App: React.FC = () => {
         return initialData;
       }
   });
+  const [originalSiteData, setOriginalSiteData] = useState<typeof initialData | null>(null);
 
   const [isAdmin, setIsAdmin] = useState(!!window.sessionStorage.getItem('isAdmin'));
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -95,18 +96,40 @@ const App: React.FC = () => {
   const openLightbox = useCallback((src: string) => setLightboxImage(src), []);
   const closeLightbox = useCallback(() => setLightboxImage(null), []);
 
+  const openAdminDashboard = () => {
+    setOriginalSiteData(siteData); // Create a snapshot of data before editing
+    setShowAdminDashboard(true);
+  };
+
   const handleAdminLogin = () => {
       setIsAdmin(true);
       window.sessionStorage.setItem('isAdmin', 'true');
       setShowAdminLogin(false);
-      setShowAdminDashboard(true);
+      openAdminDashboard();
   };
 
   const handleAdminLogout = () => {
+    if (originalSiteData) { // If editing was in progress, revert changes
+        setSiteData(originalSiteData);
+        setOriginalSiteData(null);
+    }
     setIsAdmin(false);
     window.sessionStorage.removeItem('isAdmin');
     setShowAdminDashboard(false);
   }
+
+  const handleAdminSave = () => {
+    setOriginalSiteData(null); // Clear snapshot, changes are already live
+    setShowAdminDashboard(false);
+  };
+
+  const handleAdminCancel = () => {
+    if (originalSiteData) {
+        setSiteData(originalSiteData); // Revert changes from snapshot
+    }
+    setOriginalSiteData(null);
+    setShowAdminDashboard(false);
+  };
 
   return (
     <>
@@ -120,10 +143,10 @@ const App: React.FC = () => {
         <Rules />
         <Contact content={siteData.contact} />
       </main>
-      <Footer onAdminClick={() => isAdmin ? setShowAdminDashboard(true) : setShowAdminLogin(true)} />
+      <Footer onAdminClick={() => isAdmin ? openAdminDashboard() : setShowAdminLogin(true)} />
       {lightboxImage && <Lightbox src={lightboxImage} onClose={closeLightbox} />}
       {showAdminLogin && <AdminLogin onLogin={handleAdminLogin} onClose={() => setShowAdminLogin(false)} />}
-      {isAdmin && showAdminDashboard && <AdminDashboard siteData={siteData} onUpdate={setSiteData} onClose={() => setShowAdminDashboard(false)} onLogout={handleAdminLogout} />}
+      {isAdmin && showAdminDashboard && <AdminDashboard siteData={siteData} onUpdate={setSiteData} onSave={handleAdminSave} onCancel={handleAdminCancel} onLogout={handleAdminLogout} />}
     </>
   );
 };
