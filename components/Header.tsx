@@ -20,6 +20,7 @@ const Header: React.FC = () => {
           <div className="text-sm font-heading">Generali's Bar & Kitchen</div>
         </a>
         <nav className="hidden md:flex items-center gap-4">
+          <a href="#specials" className="text-sm font-medium uppercase hover:text-primary transition-colors">Specials</a>
           <a href="#menu" className="text-sm font-medium uppercase hover:text-primary transition-colors">Menu</a>
           <a href="#events" className="text-sm font-medium uppercase hover:text-primary transition-colors">Events</a>
           <a href="#gallery" className="text-sm font-medium uppercase hover:text-primary transition-colors">Gallery</a>
@@ -35,6 +36,7 @@ const Header: React.FC = () => {
       {isMobileMenuOpen && (
         <div id="mobileNav" className="md:hidden border-t">
           <div className="px-6 py-4 flex flex-col gap-3">
+            <a href="#specials" className="uppercase" onClick={closeMobileMenu}>Today's Specials</a>
             <a href="#menu" className="uppercase" onClick={closeMobileMenu}>View Menu</a>
             <a href="#events" className="uppercase" onClick={closeMobileMenu}>Events</a>
             <a href="#gallery" className="uppercase" onClick={closeMobileMenu}>Gallery</a>

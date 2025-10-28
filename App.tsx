@@ -10,12 +10,32 @@ import Footer from './components/Footer';
 import Lightbox from './components/Lightbox';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
+import Specials from './components/Specials';
 
 const initialData = {
   hero: {
     title: 'Where Kilifi Comes Alive — <span class="text-primary">Eat. Sip. Vibe.</span>',
     subtitle: "Discover coastal flavours, vibrant nights & local energy at Generali's Bar & Kitchen, Kilifi. Fresh seafood, wood-fired BBQ and crafted cocktails — made for good company."
   },
+  specials: `🍴 **Say Goodbye to Monday Blues!**
+**Fresh, Flavorful & Fast Deliveries within Kilifi and its Environs 🌴🚗**
+
+**🥘 Our Specials:**
+
+1. 🍗 Chips with Pan-Fried Chicken — **KSh 450**
+2. 🍟 Chips Masala with Crispy Chicken — **KSh 600**
+3. 🥩 ¼ Beef Pan-Fry with Ugali & Kachumbari — **KSh 400**
+4. 🍛 ¼ Mbuzi Wet Fry with Ugali & Greens — **KSh 500**
+5. 😋 ¼ Beef Wet Fry with Chips — **KSh 450**
+6. 🥔 Sautéed Potatoes with 2 Sausages — **KSh 300**
+7. 🥘 ¼ Beef Wet Fry with Ugali — **KSh 350**
+8. 🐓 Ask for our Special **Kuku Kienyeji** — Price on Request
+
+---
+
+📞 **To place your order:**
+Call or WhatsApp **0723 836 288**
+Fast delivery, hot meals, happy vibes 🎉`,
   menu: {
     overview: [
       { title: 'BBQ', items: [{ name: 'BBQ Platter', price: 'KSh 1,950' }, { name: 'Grilled Lamb Chops', price: 'KSh 1,250' }, { name: 'Charred Corn', price: 'KSh 250' }] },
@@ -30,10 +50,10 @@ const initialData = {
     ]
   },
   gallery: [
-    'https://images.unsplash.com/photo-1543352634-1b5e4d3edb9d?auto=format&fit=crop&w=800&q=60',
-    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60',
-    'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=60',
-    'https://images.unsplash.com/photo-1541542684-4b3b36f9a9b9?auto=format&fit=crop&w=800&q=60'
+    { src: 'https://images.unsplash.com/photo-1543352634-1b5e4d3edb9d?auto=format&fit=crop&w=800&q=60', caption: 'Vibrant cocktails lined up on the bar.' },
+    { src: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60', caption: 'A delicious and healthy meal served fresh.' },
+    { src: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=60', caption: 'Our chefs preparing a masterpiece in the kitchen.' },
+    { src: 'https://images.unsplash.com/photo-1541542684-4b3b36f9a9b9?auto=format&fit=crop&w=800&q=60', caption: 'Cozy and inviting atmosphere for a perfect night out.' }
   ],
   contact: {
     address: 'Kwa Mwango, Kilifi Town — opposite the new Fire Station.',
@@ -46,7 +66,14 @@ const App: React.FC = () => {
   const [siteData, setSiteData] = useState(() => {
       try {
         const savedData = window.localStorage.getItem('generalis-site-data');
-        return savedData ? JSON.parse(savedData) : initialData;
+        let data = savedData ? JSON.parse(savedData) : initialData;
+
+        // Migration for gallery format from string[] to {src, caption}[]
+        if (data.gallery && data.gallery.length > 0 && typeof data.gallery[0] === 'string') {
+            data.gallery = data.gallery.map((src: string) => ({ src, caption: '' }));
+        }
+        
+        return data;
       } catch (error) {
         console.error("Could not parse saved site data", error);
         return initialData;
@@ -86,6 +113,7 @@ const App: React.FC = () => {
       <Header />
       <main>
         <Hero content={siteData.hero} />
+        <Specials content={siteData.specials} />
         <Menu content={siteData.menu} />
         <Events />
         <Gallery images={siteData.gallery} onImageClick={openLightbox} />
