@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 
 const SECRET_KEY = '12345';
 
-const AdminLogin = ({ onLogin, onClose }) => {
+interface AdminLoginProps {
+  onLogin: () => void;
+  onClose: () => void;
+}
+
+const AdminLogin: React.FC<AdminLoginProps> = ({ onLogin, onClose }) => {
   const [key, setKey] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (key === SECRET_KEY) {
       onLogin();
@@ -28,6 +33,7 @@ const AdminLogin = ({ onLogin, onClose }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary"
             placeholder="Secret Key"
             aria-label="Secret Key"
+            autoFocus
           />
           {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
           <div className="mt-6 flex justify-end gap-3">
