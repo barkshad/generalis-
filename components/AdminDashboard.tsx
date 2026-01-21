@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 
@@ -165,7 +166,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ siteData, onSave, onCan
         }
     };
 
-    // Generates missing captions using Gemini 2.5 Flash
+    // Generates missing captions using Gemini 3 Flash
     const generateAllMissingCaptions = async () => {
         const apiKey = process.env.API_KEY;
         if (!apiKey) {
@@ -187,22 +188,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ siteData, onSave, onCan
                     
                     if (base64Data) {
                         // Generate a catchy caption using vision capabilities
+                        // Use gemini-3-flash-preview for basic text and vision tasks
                         const response = await ai.models.generateContent({
-                            model: 'gemini-2.5-flash',
+                            model: 'gemini-3-flash-preview',
                             contents: {
                                 parts: [
-                                    // Cast the inlineData part to any to resolve naming conflict with browser's global Blob type
                                     { 
+                                        // Use explicit casting to any for the inlineData object to avoid naming conflict with browser's global Blob type
                                         inlineData: { 
                                             data: base64Data, 
                                             mimeType: mimeType 
-                                        } 
-                                    } as any,
+                                        } as any 
+                                    },
                                     { text: "Provide a 5-word catchy caption for this restaurant image." }
                                 ]
                             }
                         });
                         
+                        // Access the .text property directly as per the latest SDK guidelines
                         if (response.text) {
                             galleryCopy[i].caption = response.text.trim();
                         }
