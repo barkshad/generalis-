@@ -165,6 +165,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ siteData, onSave, onCan
         }
     };
 
+    // Generates missing captions using Gemini 2.5 Flash
     const generateAllMissingCaptions = async () => {
         const apiKey = process.env.API_KEY;
         if (!apiKey) {
@@ -173,32 +174,44 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ siteData, onSave, onCan
         }
         setCaptionState({ loading: 'all', suggestions: [], activeIndex: null });
         try {
-            // FIX: Initialize with explicit apiKey string to avoid unknown type issues.
-            const ai = new GoogleGenAI({ apiKey: apiKey as string });
-            // FIX: Explicitly cast the parsed gallery data to avoid unknown/empty object issues and provide structure.
+            // Initialize with the current environment API Key
+            const ai = new GoogleGenAI({ apiKey: apiKey });
+            // Deep copy gallery to work with local state
             const galleryCopy = JSON.parse(JSON.stringify(localData.gallery)) as Array<{src: string, caption: string}>;
             
             for (let i = 0; i < galleryCopy.length; i++) {
                 if (!galleryCopy[i].caption) {
-                    const base64Data = galleryCopy[i].src.split(',')[1];
-                    const mimeType = galleryCopy[i].src.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)?.[1] || 'image/jpeg';
+                    const src = galleryCopy[i].src;
+                    const base64Data = src.split(',')[1];
+                    const mimeType = src.match(/data:([^;]+);/)?.[1] || 'image/jpeg';
                     
-                    const response = await ai.models.generateContent({
-                        model: 'gemini-2.5-flash',
-                        contents: [{ 
-                            parts: [
-                                // FIX: Cast inlineData object as any to resolve conflict between global Blob and @google/genai's internal Blob type.
-                                { inlineData: { data: base64Data, mimeType } as any },
-                                { text: "Provide a 5-word catchy caption for this restaurant image." }
-                            ] 
-                        }]
-                    });
-                    galleryCopy[i].caption = response.text || "Fresh from our kitchen";
+                    if (base64Data) {
+                        // Generate a catchy caption using vision capabilities
+                        const response = await ai.models.generateContent({
+                            model: 'gemini-2.5-flash',
+                            contents: {
+                                parts: [
+                                    // Cast the inlineData part to any to resolve naming conflict with browser's global Blob type
+                                    { 
+                                        inlineData: { 
+                                            data: base64Data, 
+                                            mimeType: mimeType 
+                                        } 
+                                    } as any,
+                                    { text: "Provide a 5-word catchy caption for this restaurant image." }
+                                ]
+                            }
+                        });
+                        
+                        if (response.text) {
+                            galleryCopy[i].caption = response.text.trim();
+                        }
+                    }
                 }
             }
             setLocalData(prev => ({ ...prev, gallery: galleryCopy }));
         } catch (e) {
-            console.error(e);
+            console.error("Caption generation error:", e);
         } finally {
             setCaptionState({ loading: null, suggestions: [], activeIndex: null });
         }

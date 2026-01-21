@@ -36,37 +36,45 @@ const Gallery: React.FC<GalleryProps> = ({ images, onImageClick }) => {
     <section 
       ref={sectionRef}
       id="gallery" 
-      className={`bg-background max-w-6xl mx-auto px-6 py-20 scroll-mt-20 transition-all duration-700 ease-out transform ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      className={`bg-charcoal py-32 transition-all duration-1000 transform ${
+        isVisible ? 'opacity-100' : 'opacity-0 translate-y-12'
       }`}
     >
-      <h2 className="font-heading text-3xl md:text-4xl text-charcoal">Gallery</h2>
-      <p className="mt-3 text-charcoal/80">A glimpse of our space, food and vibe.</p>
-      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        {images.map((image, index) => (
-          <figure key={index} className="group shadow-md rounded-lg overflow-hidden flex flex-col bg-white transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-            <div 
-              className="overflow-hidden cursor-pointer relative" 
-              onClick={() => onImageClick(image.src.replace('&w=800', '&w=2000'))}
-            >
-              <img
-                src={image.src}
-                alt={image.caption || `Gallery item ${index + 1}`}
-                className="w-full h-48 object-cover transform group-hover:scale-105 transition-transform duration-300 ease-in-out"
-              />
-               <div className="absolute inset-0 bg-primary/70 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 1v4m0 0h-4m4 0l-5-5" />
-                  </svg>
-              </div>
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div className="max-w-lg">
+                <p className="text-primary text-[10px] tracking-[0.4em] uppercase mb-6">Visuals</p>
+                <h2 className="font-heading text-4xl md:text-6xl text-white">Atmosphere & Soul</h2>
             </div>
-            {image.caption && (
-              <figcaption className="p-3 text-sm text-charcoal/80">
-                {image.caption}
-              </figcaption>
-            )}
-          </figure>
-        ))}
+            <p className="text-white/50 text-sm italic font-light">Explore the Generali experience.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+          {images.map((image, index) => {
+            const spans = index % 3 === 0 ? 'md:col-span-8' : 'md:col-span-4';
+            return (
+                <div 
+                    key={index} 
+                    className={`${spans} relative group overflow-hidden cursor-pointer aspect-video md:aspect-auto md:h-[400px]`}
+                    onClick={() => onImageClick(image.src.replace('&w=800', '&w=2000'))}
+                >
+                    <img
+                        src={image.src}
+                        alt={image.caption || `Gallery item ${index + 1}`}
+                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-[4s] ease-out"
+                    />
+                    <div className="absolute inset-0 bg-charcoal/60 opacity-0 group-hover:opacity-100 transition-opacity duration-700 flex flex-col justify-end p-8">
+                        <div className="overflow-hidden">
+                            <p className="text-white text-lg font-heading italic transform translate-y-full group-hover:translate-y-0 transition-transform duration-700 delay-100">
+                                {image.caption}
+                            </p>
+                        </div>
+                        <span className="w-12 h-px bg-primary mt-4 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-700 delay-300"></span>
+                    </div>
+                </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

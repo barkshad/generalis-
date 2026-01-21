@@ -34,37 +34,55 @@ const Contact: React.FC<{ content: { address: string; phone: string }, rules: st
     <section 
       ref={sectionRef}
       id="contact" 
-      className={`bg-white max-w-6xl mx-auto px-6 py-20 scroll-mt-20 transition-all duration-700 ease-out transform ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      className={`bg-background py-32 scroll-mt-20 transition-all duration-1000 transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
-      <div className="grid md:grid-cols-2 gap-12 items-start">
-        <div>
-          <h2 className="font-heading text-3xl md:text-4xl text-charcoal">Contact & Location</h2>
-          <p className="mt-3 text-charcoal/80">{content.address}</p>
-          <p className="mt-2 text-charcoal/80">Phone/WhatsApp: <a href={telLink} className="font-semibold text-charcoal hover:text-primary transition-colors">{content.phone}</a></p>
-          <div className="mt-4 flex gap-3">
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-charcoal/5 transition-colors">Book a table</a>
-            <a href="#gallery" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-charcoal/5 transition-colors">See Photos</a>
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="grid lg:grid-cols-2 gap-24">
+          <div className="space-y-12">
+            <div>
+              <p className="text-primary text-[10px] tracking-[0.4em] uppercase mb-6">Find Us</p>
+              <h2 className="font-heading text-4xl md:text-6xl text-charcoal mb-8">Location & Details</h2>
+              <p className="text-charcoal/70 text-lg font-light leading-relaxed max-w-md">
+                {content.address}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 pt-12 border-t border-charcoal/10">
+              <div>
+                <h4 className="text-[10px] tracking-[0.2em] uppercase font-bold text-charcoal/50 mb-4">Reservations</h4>
+                <a href={telLink} className="font-heading text-2xl text-charcoal hover:text-primary transition-colors">{content.phone}</a>
+                <p className="text-xs text-charcoal/40 mt-2 italic">Bookings via WhatsApp encouraged.</p>
+              </div>
+              <div>
+                <h4 className="text-[10px] tracking-[0.2em] uppercase font-bold text-charcoal/50 mb-4">Hours</h4>
+                <p className="text-charcoal text-sm leading-relaxed">
+                  Daily: 10:00 — 23:00<br/>
+                  Kitchen: 11:30 — 22:00
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-charcoal/5 p-8 rounded-sm">
+                <h4 className="text-[10px] tracking-[0.2em] uppercase font-bold text-charcoal mb-6">House Rules</h4>
+                <ul className="space-y-4">
+                  {rules.map((rule, index) => (
+                    <li key={index} className="flex gap-4 text-xs text-charcoal/70 leading-relaxed italic">
+                        <span className="text-primary font-bold">0{index + 1}.</span>
+                        {rule}
+                    </li>
+                  ))}
+                </ul>
+            </div>
           </div>
-          <div className="mt-6">
-            <h4 className="font-heading text-lg text-charcoal">Hours</h4>
-            <p className="text-charcoal/80 text-sm mt-1">Daily: 10:00am — 11:00pm<br/>Happy Hour (Weekdays): 3:00pm — 6:00pm</p>
-          </div>
-          <div className="mt-8 pt-6 border-t border-charcoal/10">
-            <h4 className="font-heading text-lg text-charcoal">Dress Code & House Rules</h4>
-            <ul className="mt-3 text-charcoal/80 text-sm space-y-2 list-disc list-inside">
-              {rules.map((rule, index) => (
-                <li key={index}>{rule}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div>
-          <div className="w-full h-80 bg-gray-200 rounded-lg overflow-hidden shadow-md">
-            <iframe className="w-full h-full" frameBorder="0" referrerPolicy="no-referrer-when-downgrade"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3981.980045554153!2d39.84711381530263!3d-3.633887044023249!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x183f3ee3e8983949%3A0x6b4a2b25ae64b18c!2sKilifi%2C%20Kenya!5e0!3m2!1sen!2sus!4v1628884245132!5m2!1sen!2sus"
-              allowFullScreen></iframe>
+
+          <div className="relative">
+            <div className="w-full h-full min-h-[500px] grayscale contrast-125 opacity-80 hover:grayscale-0 hover:opacity-100 transition-all duration-700 rounded-sm overflow-hidden shadow-2xl">
+              <iframe className="w-full h-full" frameBorder="0" referrerPolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3981.980045554153!2d39.84711381530263!3d-3.633887044023249!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x183f3ee3e8983949%3A0x6b4a2b25ae64b18c!2sKilifi%2C%20Kenya!5e0!3m2!1sen!2sus!4v1628884245132!5m2!1sen!2sus"
+                allowFullScreen></iframe>
+            </div>
           </div>
         </div>
       </div>

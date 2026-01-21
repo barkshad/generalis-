@@ -2,12 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const navLinks = [
     { href: '#about', label: 'About' },
-    { href: '#specials', label: 'Specials' },
     { href: '#menu', label: 'Menu' },
     { href: '#events', label: 'Events' },
     { href: '#gallery', label: 'Gallery' },
-    { href: '#testimonials', label: 'Reviews' },
-    { href: '#team', label: 'Team' },
     { href: '#contact', label: 'Contact' },
 ];
 
@@ -19,11 +16,10 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 80);
     };
     window.addEventListener('scroll', handleScroll);
 
-    // Smooth scrolling for anchor links
     const handleSmoothScroll = (e: MouseEvent) => {
         const target = e.currentTarget as HTMLAnchorElement;
         const href = target.getAttribute('href');
@@ -31,7 +27,12 @@ const Header: React.FC = () => {
             e.preventDefault();
             const targetElement = document.querySelector(href);
             if (targetElement) {
-                targetElement.scrollIntoView({
+                const offset = 80;
+                const elementPosition = targetElement.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
                     behavior: 'smooth'
                 });
             }
@@ -42,7 +43,6 @@ const Header: React.FC = () => {
         anchor.addEventListener('click', handleSmoothScroll as EventListener);
     });
 
-    // Intersection observer for active nav link
     observer.current = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -73,40 +73,56 @@ const Header: React.FC = () => {
 
   const NavLink: React.FC<{href: string; label: string; isMobile?: boolean}> = ({ href, label, isMobile }) => {
     const isActive = activeSection === href.substring(1);
-    const mobileClasses = `uppercase block py-2 transition-colors ${isActive ? 'text-primary' : 'hover:text-primary'}`;
-    const desktopClasses = `text-sm font-medium uppercase transition-colors ${isActive ? 'text-primary' : 'hover:text-primary'}`;
+    const mobileClasses = `text-lg tracking-widest uppercase block py-4 text-center border-b border-charcoal/5 last:border-0 transition-colors ${isActive ? 'text-primary' : 'text-charcoal hover:text-primary'}`;
+    const desktopClasses = `text-[10px] tracking-[0.2em] font-medium uppercase transition-all duration-300 relative group ${isActive ? 'text-primary' : 'hover:text-primary'}`;
+    
     return (
         <a href={href} className={isMobile ? mobileClasses : desktopClasses} onClick={isMobile ? closeMobileMenu : undefined}>
             {label}
+            {!isMobile && (
+              <span className={`absolute -bottom-1 left-0 w-full h-[1px] bg-primary transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left ${isActive ? 'scale-x-100' : ''}`}></span>
+            )}
         </a>
     );
   };
 
   return (
-    <header className={`w-full sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background/95 backdrop-blur-sm shadow-md' : 'bg-transparent'}`}>
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-heading font-bold">G</div>
-          <div className={`text-sm font-heading transition-colors ${isScrolled ? 'text-charcoal' : 'text-white'}`}>Generali's Bar & Kitchen</div>
+    <header className={`w-full fixed top-0 z-50 transition-all duration-700 ${isScrolled ? 'bg-background/95 backdrop-blur-md py-3 shadow-sm' : 'bg-transparent py-6'}`}>
+      <div className="max-w-7xl mx-auto px-8 flex items-center justify-between">
+        <a href="#" className="flex items-center gap-4 group">
+          <div className="w-12 h-12 rounded-full border border-primary/30 flex items-center justify-center text-primary font-heading text-xl group-hover:border-primary transition-all">G</div>
+          <div className={`hidden sm:block text-[11px] tracking-[0.25em] font-medium uppercase transition-colors duration-500 ${isScrolled ? 'text-charcoal' : 'text-white'}`}>Generali's</div>
         </a>
-        <nav className="hidden md:flex items-center gap-4">
-          {navLinks.map(link => <div className={`${!isScrolled && 'text-white'}`}><NavLink key={link.href} {...link} /></div>)}
-          <a href="https://wa.me/254723836288?text=Hello%20Generali's%20Bar%20-%20I'd%20like%20to%20reserve%20a%20table" target="_blank" rel="noopener noreferrer" className="ml-4 inline-block px-4 py-2 text-sm font-semibold uppercase rounded-md border border-primary bg-primary text-white hover:bg-primary/90 transition-all transform hover:scale-105">Reserve</a>
+        
+        <nav className="hidden md:flex items-center gap-12">
+          {navLinks.map(link => (
+            <div key={link.href} className={`transition-colors duration-500 ${!isScrolled ? 'text-white' : 'text-charcoal'}`}>
+              <NavLink {...link} />
+            </div>
+          ))}
         </nav>
-        <button id="mobileToggle" className={`md:hidden p-2 transition-colors ${isScrolled ? 'text-charcoal' : 'text-white'}`} onClick={toggleMobileMenu} aria-label="Toggle mobile menu">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-      </div>
-      {isMobileMenuOpen && (
-        <div id="mobileNav" className="md:hidden bg-background/95 backdrop-blur-sm border-t border-charcoal/10">
-          <div className="px-6 py-4 flex flex-col gap-1">
-            {navLinks.map(link => <NavLink key={link.href} {...link} isMobile />)}
-            <a href="https://wa.me/254723836288?text=Hello%20Generali's%20Bar%20-%20I'd%20like%20to%20reserve%20a%20table" target="_blank" rel="noopener noreferrer" className="mt-2 inline-block px-4 py-2 text-center font-semibold uppercase rounded-md border border-primary bg-primary text-white transition-all transform hover:scale-105">Reserve</a>
-          </div>
+
+        <div className="flex items-center gap-6">
+          <a href="https://wa.me/254723836288" target="_blank" className={`hidden lg:block text-[10px] tracking-[0.2em] font-semibold uppercase border-b-2 pb-1 transition-all duration-300 ${isScrolled ? 'border-primary text-charcoal' : 'border-white text-white hover:border-primary'}`}>
+            Reserve
+          </a>
+          <button className={`md:hidden p-2 transition-colors ${isScrolled ? 'text-charcoal' : 'text-white'}`} onClick={toggleMobileMenu}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d={isMobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            </svg>
+          </button>
         </div>
-      )}
+      </div>
+      
+      {/* Mobile Menu */}
+      <div className={`fixed inset-0 top-[72px] bg-background z-40 md:hidden transition-transform duration-500 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="px-8 py-12 flex flex-col items-center">
+          {navLinks.map(link => <NavLink key={link.href} {...link} isMobile />)}
+          <a href="https://wa.me/254723836288" className="mt-12 text-sm tracking-widest uppercase font-bold text-primary border-b-2 border-primary pb-2">
+            Make a Reservation
+          </a>
+        </div>
+      </div>
     </header>
   );
 };

@@ -12,47 +12,25 @@ interface MenuCategory {
 }
 
 const MenuCategoryCard: React.FC<{ category: MenuCategory }> = ({ category }) => (
-  <div className="p-4 border rounded-lg bg-white shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col">
-    <h3 className="font-heading text-lg text-charcoal">{category.title}</h3>
-    <ul className="mt-2 text-sm text-charcoal/80 flex-grow">
+  <div className="py-8 border-b border-charcoal/10 last:border-0 group">
+    <h3 className="font-heading text-2xl text-charcoal mb-6 group-hover:text-primary transition-colors duration-500 italic">
+      {category.title}
+    </h3>
+    <ul className="space-y-4">
       {category.items.map((item) => (
-        <li key={item.name} className="group flex justify-between items-center py-1.5 border-b border-gray-100 last:border-b-0 cursor-default">
-          <div className="flex items-center gap-3">
-            {item.image && (
-              <img src={item.image} alt={item.name} className="w-8 h-8 rounded-md object-cover flex-shrink-0" />
-            )}
-            <span className={`transition-all duration-200 ease-in-out ${!item.image && 'group-hover:text-primary group-hover:font-semibold'}`}>
+        <li key={item.name} className="flex justify-between items-baseline gap-4">
+          <div className="flex-1">
+            <h4 className="text-[11px] tracking-[0.1em] font-semibold uppercase text-charcoal/80 mb-0.5">
               {item.name}
-            </span>
+            </h4>
           </div>
-          <span className="font-medium text-charcoal text-right pl-2">{item.price}</span>
+          <div className="flex-grow border-b border-dotted border-charcoal/20"></div>
+          <span className="font-heading text-lg text-charcoal">{item.price}</span>
         </li>
       ))}
     </ul>
   </div>
 );
-
-const FullMenuCard: React.FC<{ category: MenuCategory }> = ({ category }) => (
-    <div className="p-4 border rounded-lg bg-white shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg">
-        <h4 className="font-heading text-lg text-charcoal mb-2">{category.title}</h4>
-        <div className="space-y-3">
-          {category.items.map(item => (
-            <div key={item.name} className="group flex gap-3 items-start cursor-default">
-              {item.image && (
-                <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
-              )}
-              <div className="flex-grow">
-                <div className="flex justify-between">
-                    <span className="font-semibold text-charcoal group-hover:text-primary transition-colors duration-200">{item.name}</span>
-                    <span className="font-medium text-charcoal">{item.price}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-    </div>
-);
-
 
 const Menu: React.FC<{ content: { overview: MenuCategory[]; fullMenu: MenuCategory[] } }> = ({ content }) => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -85,32 +63,40 @@ const Menu: React.FC<{ content: { overview: MenuCategory[]; fullMenu: MenuCatego
     <section 
       ref={sectionRef}
       id="menu" 
-      className={`bg-background max-w-6xl mx-auto px-6 py-20 scroll-mt-20 transition-all duration-700 ease-out transform ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      className={`bg-background py-32 scroll-mt-20 transition-all duration-1000 transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
       }`}
     >
-      <div className="grid md:grid-cols-2 gap-10 items-center">
-        <div>
-          <h2 className="font-heading text-3xl md:text-4xl text-charcoal">Menu Overview</h2>
-          <p className="mt-3 text-charcoal/80 leading-relaxed">Our kitchen opens daily at 10am. From BBQ to seafood platters, artisan pizzas to signature cocktails — served with coastal charm. Order for pickup or reserve a table for an evening out.</p>
-          <div className="mt-6 flex gap-3">
-            <a href="#fullmenu" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-charcoal/5 transition-colors">View Full Menu</a>
-            <a href="https://wa.me/254723836288?text=Hi%2C%20I%20want%20to%20order%20via%20WhatsApp" target="_blank" rel="noopener noreferrer" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-charcoal/5 transition-colors">Order via WhatsApp</a>
-          </div>
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="flex flex-col items-center text-center mb-24">
+          <p className="text-primary text-[10px] tracking-[0.4em] uppercase mb-6">Our Gastronomy</p>
+          <h2 className="font-heading text-4xl md:text-6xl text-charcoal mb-8">The Collection</h2>
+          <p className="max-w-xl text-charcoal/60 text-sm tracking-wide leading-relaxed">
+            Crafted with local ingredients and international expertise. From the wood-fire BBQ to the freshest catches of the Indian Ocean.
+          </p>
         </div>
-        <div className="grid grid-cols-2 gap-4">
-          {content.overview.map((category) => (
-            <MenuCategoryCard key={category.title} category={category} />
-          ))}
-        </div>
-      </div>
 
-      <div id="fullmenu" className="mt-20 border-t border-charcoal/10 pt-10 scroll-mt-20">
-        <h3 className="font-heading text-2xl md:text-3xl text-charcoal">Full Menu</h3>
-        <div className="mt-4 grid md:grid-cols-3 gap-6">
-          {content.fullMenu.map((category) => (
-             <FullMenuCard key={category.title} category={category} />
-          ))}
+        <div className="grid lg:grid-cols-2 gap-x-24 items-start">
+          <div className="space-y-4">
+            {content.overview.map((category) => (
+              <MenuCategoryCard key={category.title} category={category} />
+            ))}
+          </div>
+          <div className="mt-12 lg:mt-0 relative group">
+            <div className="overflow-hidden aspect-[4/5] rounded-sm">
+                <img 
+                    src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80" 
+                    alt="Signature Platter" 
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-[3s]" 
+                />
+            </div>
+            <div className="absolute -bottom-8 -left-8 bg-charcoal text-white p-12 max-w-xs shadow-2xl">
+                <p className="text-primary text-[9px] tracking-[0.3em] uppercase mb-4">Chef's Signature</p>
+                <h4 className="font-heading text-2xl mb-4 italic">Seafood Tapas Platter</h4>
+                <p className="text-white/60 text-xs leading-relaxed mb-6">A curated selection of the day's freshest catch, grilled over charcoal with traditional coastal spices.</p>
+                <a href="https://wa.me/254723836288" className="text-primary text-[10px] tracking-[0.2em] font-bold uppercase border-b border-primary/50 pb-1">Order Now</a>
+            </div>
+          </div>
         </div>
       </div>
     </section>

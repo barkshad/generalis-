@@ -7,25 +7,25 @@
   <meta name="description" content="Discover coastal flavours, vibrant nights and local energy in Kilifi at Generali's Bar & Kitchen." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: '#E58A4E', // Fiery orange-gold
-            charcoal: '#2C2A29', // Warmer, softer dark color
-            background: '#FDFBF7', // Soft, warm off-white
+            primary: '#C5A059', // Refined Gold/Brass
+            charcoal: '#1A1A1A', // Deep Luxury Black
+            background: '#FCFAF7', // Warm Paper White
           },
           fontFamily: {
-            heading: ['Poppins', 'sans-serif'],
-            body: ['Roboto', 'sans-serif']
+            heading: ['"Playfair Display"', 'serif'],
+            body: ['Montserrat', 'sans-serif']
           },
           animation: {
             'slide-in': 'slideIn 0.3s ease-out forwards',
-            'fade-in': 'fadeIn 0.2s ease-in forwards',
-            'kenburns': 'kenburns 20s ease-out forwards',
+            'fade-in': 'fadeIn 0.6s ease-in forwards',
+            'kenburns': 'kenburns 30s ease-out infinite alternate',
           },
           keyframes: {
             slideIn: {
@@ -33,12 +33,12 @@
               '100%': { transform: 'translateX(0)' },
             },
             fadeIn: {
-                '0%': { opacity: '0' },
-                '100%': { opacity: '1' },
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
             },
             kenburns: {
               '0%': { transform: 'scale(1) translate(0, 0)' },
-              '100%': { transform: 'scale(1.1) translate(-2%, 2%)' },
+              '100%': { transform: 'scale(1.15) translate(-1%, 1%)' },
             }
           }
         }

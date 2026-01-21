@@ -7,7 +7,6 @@ const Footer: React.FC<{onAdminClick: () => void}> = ({ onAdminClick }) => {
   const handleSubscribe = (e: React.FormEvent) => {
       e.preventDefault();
       if (email) {
-          console.log(`Subscribed with email: ${email}`);
           setSubscribed(true);
           setEmail('');
           setTimeout(() => setSubscribed(false), 3000);
@@ -15,43 +14,53 @@ const Footer: React.FC<{onAdminClick: () => void}> = ({ onAdminClick }) => {
   }
 
   return (
-    <footer className="bg-charcoal text-white">
-      <div className="max-w-6xl mx-auto px-6 py-12">
-        <div className="grid md:grid-cols-3 gap-8">
+    <footer className="bg-charcoal text-white pt-32 pb-12">
+      <div className="max-w-7xl mx-auto px-8 flex flex-col items-center text-center">
+        <div className="w-16 h-16 rounded-full border border-primary/40 flex items-center justify-center text-primary font-heading text-2xl mb-12">G</div>
+        
+        <div className="max-w-2xl mb-24">
+            <h4 className="text-[10px] tracking-[0.5em] uppercase text-white/40 mb-8 font-bold">Newsletter</h4>
+            <h2 className="font-heading text-3xl md:text-5xl mb-10 italic">Stay connected with the Coast</h2>
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4">
+                <input 
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="E-mail Address"
+                    className="flex-1 bg-transparent border-b border-white/20 px-4 py-4 focus:border-primary outline-none transition-all text-sm font-light tracking-widest text-center sm:text-left"
+                    required
+                />
+                <button type="submit" className="text-[10px] tracking-[0.3em] uppercase font-bold text-primary border border-primary/30 px-12 py-4 hover:bg-primary hover:text-charcoal transition-all">Subscribe</button>
+            </form>
+            {subscribed && <p className="text-primary text-xs mt-4 animate-fade-in italic">Your invitation to the coast is confirmed.</p>}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 w-full border-t border-white/5 pt-24 mb-24 items-start">
             <div>
-                <h4 className="font-heading text-lg">About Us</h4>
-                <p className="mt-2 text-sm text-white/70">Generali's is where Kilifi comes alive. We serve fresh coastal flavours, wood-fired BBQ, and crafted cocktails in a vibrant, welcoming space.</p>
+                <h5 className="text-[10px] tracking-[0.3em] uppercase font-bold mb-8 text-white/50">Location</h5>
+                <p className="text-white/70 text-xs leading-relaxed max-w-[200px] mx-auto uppercase tracking-tighter">
+                    Kwa Mwango, Kilifi Town — opposite the new Fire Station.
+                </p>
             </div>
             <div>
-                <h4 className="font-heading text-lg">Newsletter</h4>
-                <p className="mt-2 text-sm text-white/70">Stay updated on our latest events, specials, and offers.</p>
-                <form onSubmit={handleSubscribe} className="mt-4 flex">
-                    <input 
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Your email address"
-                        className="w-full px-3 py-2 text-sm text-charcoal bg-white rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary"
-                        required
-                        aria-label="Email for newsletter"
-                    />
-                    <button type="submit" className="px-4 py-2 text-sm font-semibold bg-primary text-white rounded-r-md hover:bg-primary/90 transition-colors">Subscribe</button>
-                </form>
-                {subscribed && <p className="text-sm text-primary mt-2">Thank you for subscribing!</p>}
-            </div>
-            <div>
-                 <h4 className="font-heading text-lg">Connect</h4>
-                 <div className="flex gap-4 mt-4 items-center">
-                  <a href="#" className="text-sm uppercase hover:text-primary transition-colors">Instagram</a>
-                  <a href="#" className="text-sm uppercase hover:text-primary transition-colors">Facebook</a>
+                <h5 className="text-[10px] tracking-[0.3em] uppercase font-bold mb-8 text-white/50">Follow</h5>
+                <div className="flex flex-col gap-4">
+                    <a href="#" className="text-white text-xs uppercase tracking-widest hover:text-primary transition-colors">Instagram</a>
+                    <a href="#" className="text-white text-xs uppercase tracking-widest hover:text-primary transition-colors">Facebook</a>
                 </div>
             </div>
+            <div>
+                <h5 className="text-[10px] tracking-[0.3em] uppercase font-bold mb-8 text-white/50">Inquiries</h5>
+                <a href="mailto:hello@generalis.com" className="text-white text-xs uppercase tracking-widest hover:text-primary transition-colors">hello@generalis.com</a>
+            </div>
         </div>
-      </div>
-      <div className="bg-black/20">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row items-center justify-between">
-            <div className="text-sm text-center md:text-left text-white/60">© 2025 Generali's Bar & Kitchen. All Rights Reserved.</div>
-            <button onClick={onAdminClick} className="mt-2 md:mt-0 text-sm uppercase text-white/40 hover:text-primary transition-colors">Admin Panel</button>
+
+        <div className="flex flex-col md:flex-row items-center justify-between w-full text-[9px] tracking-[0.3em] uppercase text-white/20">
+            <span>© 2025 Generali's Bar & Kitchen</span>
+            <div className="flex gap-8 mt-6 md:mt-0">
+                <button onClick={onAdminClick} className="hover:text-primary transition-colors">Admin Access</button>
+                <span>Built for Kilifi</span>
+            </div>
         </div>
       </div>
     </footer>
