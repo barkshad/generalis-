@@ -40,20 +40,20 @@ const Contact: React.FC<{ content: { address: string; phone: string }, rules: st
     >
       <div className="grid md:grid-cols-2 gap-12 items-start">
         <div>
-          <h2 className="font-heading text-3xl md:text-4xl">Contact & Location</h2>
-          <p className="mt-3 text-gray-700">{content.address}</p>
-          <p className="mt-2 text-gray-700">Phone/WhatsApp: <a href={telLink} className="font-semibold text-charcoal hover:text-primary transition-colors">{content.phone}</a></p>
+          <h2 className="font-heading text-3xl md:text-4xl text-charcoal">Contact & Location</h2>
+          <p className="mt-3 text-charcoal/80">{content.address}</p>
+          <p className="mt-2 text-charcoal/80">Phone/WhatsApp: <a href={telLink} className="font-semibold text-charcoal hover:text-primary transition-colors">{content.phone}</a></p>
           <div className="mt-4 flex gap-3">
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-gray-100 transition-colors">Book a table</a>
-            <a href="#gallery" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-gray-100 transition-colors">See Photos</a>
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-charcoal/5 transition-colors">Book a table</a>
+            <a href="#gallery" className="px-4 py-2 tracking-widest uppercase text-sm font-semibold border rounded-md hover:bg-charcoal/5 transition-colors">See Photos</a>
           </div>
           <div className="mt-6">
-            <h4 className="font-heading text-lg">Hours</h4>
-            <p className="text-gray-700 text-sm mt-1">Daily: 10:00am — 11:00pm<br/>Happy Hour (Weekdays): 3:00pm — 6:00pm</p>
+            <h4 className="font-heading text-lg text-charcoal">Hours</h4>
+            <p className="text-charcoal/80 text-sm mt-1">Daily: 10:00am — 11:00pm<br/>Happy Hour (Weekdays): 3:00pm — 6:00pm</p>
           </div>
-          <div className="mt-8 pt-6 border-t">
-            <h4 className="font-heading text-lg">Dress Code & House Rules</h4>
-            <ul className="mt-3 text-gray-700 text-sm space-y-2 list-disc list-inside">
+          <div className="mt-8 pt-6 border-t border-charcoal/10">
+            <h4 className="font-heading text-lg text-charcoal">Dress Code & House Rules</h4>
+            <ul className="mt-3 text-charcoal/80 text-sm space-y-2 list-disc list-inside">
               {rules.map((rule, index) => (
                 <li key={index}>{rule}</li>
               ))}

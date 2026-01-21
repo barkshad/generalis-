@@ -31,11 +31,11 @@ const Footer: React.FC<{onAdminClick: () => void}> = ({ onAdminClick }) => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Your email address"
-                        className="w-full px-3 py-2 text-sm text-charcoal bg-white rounded-l-md focus:outline-none"
+                        className="w-full px-3 py-2 text-sm text-charcoal bg-white rounded-l-md focus:outline-none focus:ring-2 focus:ring-primary"
                         required
                         aria-label="Email for newsletter"
                     />
-                    <button type="submit" className="px-4 py-2 text-sm font-semibold bg-primary text-charcoal rounded-r-md hover:bg-primary/90">Subscribe</button>
+                    <button type="submit" className="px-4 py-2 text-sm font-semibold bg-primary text-white rounded-r-md hover:bg-primary/90 transition-colors">Subscribe</button>
                 </form>
                 {subscribed && <p className="text-sm text-primary mt-2">Thank you for subscribing!</p>}
             </div>

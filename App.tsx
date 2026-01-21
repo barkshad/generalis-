@@ -41,14 +41,14 @@ const initialData = {
 <p><em>Fast delivery, hot meals, happy vibes 🎉</em></p>`,
   menu: {
     overview: [
-      { title: 'BBQ', items: [{ name: 'BBQ Platter', price: 'KSh 1,950' }, { name: 'Grilled Lamb Chops', price: 'KSh 1,250' }, { name: 'Charred Corn', price: 'KSh 250' }] },
-      { title: 'Pizza', items: [{ name: 'Margherita', price: 'KSh 850' }, { name: 'Pepperoni', price: 'KSh 1,050' }, { name: 'Seafood Delight', price: 'KSh 1,250' }] },
-      { title: 'Seafood', items: [{ name: 'Seafood Tapas', price: 'KSh 1,450' }, { name: 'Grilled Prawns', price: 'KSh 1,350' }] },
+      { title: 'BBQ', items: [{ name: 'BBQ Platter', price: 'KSh 1,950', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=60' }, { name: 'Grilled Lamb Chops', price: 'KSh 1,250' }, { name: 'Charred Corn', price: 'KSh 250' }] },
+      { title: 'Pizza', items: [{ name: 'Margherita', price: 'KSh 850' }, { name: 'Pepperoni', price: 'KSh 1,050' }, { name: 'Seafood Delight', price: 'KSh 1,250', image: 'https://images.unsplash.com/photo-1565299507177-b0ac66763828?auto=format&fit=crop&w=400&q=60' }] },
+      { title: 'Seafood', items: [{ name: 'Seafood Tapas', price: 'KSh 1,450', image: 'https://images.unsplash.com/photo-1625683234465-f6880193b2a2?auto=format&fit=crop&w=400&q=60' }, { name: 'Grilled Prawns', price: 'KSh 1,350' }] },
       { title: 'Cocktails', items: [{ name: 'Generali Mule', price: 'KSh 650' }, { name: 'Mango Rum Punch', price: 'KSh 700' }] },
     ],
     fullMenu: [
         { title: 'Starters', items: [{ name: 'Ceviche', price: 'KSh 650' }, {name: 'Calamari Rings', price: 'KSh 550'}] },
-        { title: 'Mains', items: [{ name: 'Charcoal-Grilled Fish', price: 'KSh 1,350' }, {name: 'BBQ Platter', price: 'KSh 1,950'}] },
+        { title: 'Mains', items: [{ name: 'Charcoal-Grilled Fish', price: 'KSh 1,350', image: 'https://images.unsplash.com/photo-1598515214211-89d3c7373014?auto=format&fit=crop&w=400&q=60' }, {name: 'BBQ Platter', price: 'KSh 1,950', image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=400&q=60'}] },
         { title: 'Desserts', items: [{ name: 'Coconut Tart', price: 'KSh 450' }, {name: 'Mango Sorbet', price: 'KSh 400'}] },
     ]
   },
